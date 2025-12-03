@@ -15,6 +15,30 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/trade',
+    name: 'Trade',
+    component: () => import('../views/TradePage.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/transfer',
+    name: 'Transfer',
+    component: () => import('../views/InternalTransfer.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/membership',
+    name: 'Membership',
+    component: () => import('../views/MembershipUpgrade.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/invest',
+    name: 'Invest',
+    component: () => import('../views/InvestmentDashboard.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

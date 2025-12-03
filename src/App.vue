@@ -47,7 +47,7 @@ const handleRegisterSuccess = (userData) => {
   showToast('Account created successfully! Welcome to Wadajir!')
 
   // Use router name or path instead of file path
-  router.push('/home')
+  router.push({ name: 'home' })
 }
 
 const handleLoginSuccess = (userData) => {
@@ -56,7 +56,7 @@ const handleLoginSuccess = (userData) => {
   showToast('Welcome back!')
 
   // Use router name or path instead of file path
-  router.push('/home')
+  router.push({ name: 'home' })
 }
 
 const handleServiceClick = () => {
@@ -75,10 +75,10 @@ const showToast = (message, type = 'success') => {
 watch(isAuthenticated, (newVal) => {
   if (newVal) {
     // If user becomes authenticated, redirect to home using route name
-    router.push('/home')
+    router.push({ name: 'home' })
   } else {
     // If user logs out, redirect to landing page
-    router.push('/')
+    router.push({ name: 'landing' })
   }
 })
 
@@ -88,7 +88,7 @@ onMounted(() => {
 
   // If already authenticated, redirect to home
   if (isAuthenticated.value) {
-    router.push('/home')
+    router.push({ name: 'home' })
   }
 })
 </script>
