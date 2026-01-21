@@ -23,7 +23,7 @@
 
       <!-- Title -->
       <h3 class="modal-title">Welcome Back</h3>
-      <p class="modal-subtitle">Sign in to access your AI trading dashboard</p>
+      <p class="modal-subtitle">Sign in to access your AI Mining dashboard</p>
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-fields">
