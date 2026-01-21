@@ -6,7 +6,7 @@
     <!-- Header with Username -->
     <header class="header">
       <div class="logo-section">
-        <div class="logo">W</div>
+        <div class="logo">GR</div>
         <div class="user-display">
           <div class="welcome-text">Welcome back,</div>
           <div class="username">{{ username }}</div>
@@ -38,8 +38,8 @@
         <div class="deposit-info">
           <h3>Account Ready for Funding</h3>
           <p>
-            Your current balance is <strong>$0.00</strong>. Make your first deposit to activate
-            trading.
+            Your current balance is <strong>$0.00</strong>. Make your $10 LIQUIDITY funding
+            toactivate Mining.
           </p>
         </div>
         <button class="deposit-action-btn" @click="handleDeposit">
@@ -62,9 +62,7 @@
           </div>
         </div>
         <h1 class="banner-title">Future is <span class="rainbow-text">NOW</span></h1>
-        <p class="banner-subtitle">
-          Advanced data mining algorithms powering your trading decisions
-        </p>
+        <p class="banner-subtitle">Advanced mining algorithms powering your mining decisions</p>
         <div class="banner-stats">
           <div class="stat">
             <div class="stat-number">99.9%</div>
@@ -216,8 +214,8 @@
     <!-- Trading Bots Section -->
     <div class="trading-bots-section">
       <div class="section-header">
-        <h3 class="section-title">AI Trading Bots</h3>
-        <p class="section-subtitle">Upgrade your trading with automated AI algorithms</p>
+        <h3 class="section-title">AI Mining Bots</h3>
+        <p class="section-subtitle">Upgrade your mining with automated AI algorithms</p>
       </div>
 
       <div class="bots-container">
@@ -297,7 +295,7 @@
           <div class="feature-icon">
             <i class="fas fa-chart-network"></i>
           </div>
-          <h4>Data Mining</h4>
+          <h4>Mining</h4>
           <p>Real-time analysis of market patterns</p>
           <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
             <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
@@ -307,8 +305,8 @@
           <div class="feature-icon">
             <i class="fas fa-robot"></i>
           </div>
-          <h4>Auto Trading</h4>
-          <p>AI-driven automated trading strategies</p>
+          <h4>Auto Mining</h4>
+          <p>AI-driven automated mining strategies</p>
           <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
             <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
           </div>
@@ -409,7 +407,7 @@
           </span>
           <span class="volume">{{ coin.volume }}</span>
           <button class="trade-btn" @click.stop="openTradeModal(coin)" :disabled="!hasDeposited">
-            Trade
+            Mine
           </button>
         </div>
       </div>
@@ -545,7 +543,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to logout from WADAJIR Premium Trading?</p>
+          <p>Are you sure you want to logout from Golden Rise Premium Mining?</p>
           <div class="modal-actions">
             <button class="btn-secondary" @click="closeModal">Cancel</button>
             <button class="btn-primary" @click="confirmLogout">Yes, Logout</button>
@@ -782,7 +780,7 @@ export default {
 
       navigation: [
         { id: 'home', label: 'Home', icon: 'fas fa-home' },
-        { id: 'trade', label: 'Trade', icon: 'fas fa-chart-line' },
+        { id: 'trade', label: 'Mine', icon: 'fas fa-chart-line' },
         { id: 'wallet', label: 'Wallet', icon: 'fas fa-wallet' },
         { id: 'account', label: 'Account', icon: 'fas fa-user' },
       ],
