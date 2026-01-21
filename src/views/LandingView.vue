@@ -23,7 +23,7 @@
       <!-- App Name -->
       <div class="brand-section">
         <h1 class="app-name">Golden Rise</h1>
-        <p class="brand-tagline">AI-Powered Trading Intelligence</p>
+        <p class="brand-tagline">AI-Powered Mining Intelligence</p>
       </div>
 
       <!-- Action Buttons -->
@@ -34,7 +34,7 @@
 
       <!-- Additional Info -->
       <div class="additional-info">
-        <p class="info-text">24/7 automated trading based on real-time market analysis</p>
+        <p class="info-text">24/7 automated Mining based on real-time market analysis</p>
         <div class="trust-indicators">
           <div class="trust-item">
             <i class="fa-solid fa-shield-alt"></i>
