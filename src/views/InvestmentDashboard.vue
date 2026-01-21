@@ -936,7 +936,12 @@ onMounted(() => {
 <script>
 const InvestmentOpportunityCard = {
   props: {
-    opportunity: Object
+    opportunity: Object,
+  },
+  computed: {
+    formattedMinAmount() {
+      return this.opportunity.minAmount.toLocaleString()
+    },
   },
   template: `
     <div class="bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-xl rounded-2xl p-5 border border-white/10 h-full">
@@ -966,7 +971,7 @@ const InvestmentOpportunityCard = {
         </div>
       </div>
 
-      <div class="text-xs opacity-70 mb-3">Min: ${{ opportunity.minAmount.toLocaleString() }}</div>
+      <div class="text-xs opacity-70 mb-3">Min: ${{ formattedMinAmount }}</div>
 
       <button
         @click="$emit('invest')"
@@ -975,6 +980,6 @@ const InvestmentOpportunityCard = {
         Invest Now
       </button>
     </div>
-  `
+  `,
 }
 </script>

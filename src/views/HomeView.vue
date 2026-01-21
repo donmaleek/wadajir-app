@@ -19,15 +19,34 @@
           </div>
           <div class="user-details">
             <div class="user-name">{{ username }}</div>
-            <div class="user-tier">VIP Tier 3</div>
+            <div class="user-tier">{{ userTier }}</div>
           </div>
         </div>
-        <button class="logout-btn" @click="showLogoutModal = true">
+        <button class="logout-btn" @click="handleLogout">
           <i class="fas fa-sign-out-alt"></i>
           Logout
         </button>
       </div>
     </header>
+
+    <!-- Zero Balance Banner -->
+    <div v-if="!hasDeposited" class="deposit-banner">
+      <div class="deposit-content">
+        <div class="deposit-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="deposit-info">
+          <h3>Account Ready for Funding</h3>
+          <p>
+            Your current balance is <strong>$0.00</strong>. Make your first deposit to activate
+            trading.
+          </p>
+        </div>
+        <button class="deposit-action-btn" @click="handleDeposit">
+          <i class="fas fa-plus-circle"></i> Deposit Now
+        </button>
+      </div>
+    </div>
 
     <!-- Main Banner with Data Mining Background -->
     <div class="banner-section">
@@ -39,7 +58,7 @@
           <span>MARKET LIVE</span>
           <div class="server-status">
             <i class="fas fa-server"></i>
-            <span>AI Models: Active</span>
+            <span>AI Models: {{ hasDeposited ? 'Active' : 'Ready' }}</span>
           </div>
         </div>
         <h1 class="banner-title">Future is <span class="rainbow-text">NOW</span></h1>
@@ -74,27 +93,29 @@
           <i class="fas fa-chart-line"></i>
         </div>
         <div class="summary-content">
-          <div class="summary-value">$124,568.42</div>
+          <div class="summary-value">{{ totalBalance }}</div>
           <div class="summary-label">Total Balance</div>
         </div>
-        <div class="summary-trend positive">+2.4%</div>
+        <div class="summary-trend" :class="balanceTrend">
+          {{ hasDeposited ? '+2.4%' : '0%' }}
+        </div>
       </div>
       <div class="summary-card">
         <div class="summary-icon" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52)">
-          <i class="fas fa-coins"></i>
+          <i class="fas fa-robot"></i>
         </div>
         <div class="summary-content">
-          <div class="summary-value">$42,156.78</div>
-          <div class="summary-label">24h Profit</div>
+          <div class="summary-value">{{ activeBots }}</div>
+          <div class="summary-label">Active Bots</div>
         </div>
-        <div class="summary-trend positive">+1.8%</div>
+        <div class="summary-trend positive">+{{ activeBots }}</div>
       </div>
       <div class="summary-card">
         <div class="summary-icon" style="background: linear-gradient(135deg, #667eea, #764ba2)">
           <i class="fas fa-shield-alt"></i>
         </div>
         <div class="summary-content">
-          <div class="summary-value">99.97%</div>
+          <div class="summary-value">{{ hasDeposited ? '99.97%' : '--' }}</div>
           <div class="summary-label">Success Rate</div>
         </div>
         <div class="summary-trend neutral">+0.1%</div>
@@ -148,11 +169,15 @@
         v-for="action in quickActions"
         :key="action.name"
         @click="handleAction(action.name)"
+        :class="{ disabled: !hasDeposited && action.locked }"
       >
         <div class="action-icon" :style="{ background: action.color }">
           <i :class="action.icon"></i>
         </div>
         <span class="action-label">{{ action.name }}</span>
+        <div v-if="!hasDeposited && action.locked" class="action-lock">
+          <i class="fas fa-lock"></i>
+        </div>
       </div>
     </div>
 
@@ -188,6 +213,72 @@
       </div>
     </div>
 
+    <!-- Trading Bots Section -->
+    <div class="trading-bots-section">
+      <div class="section-header">
+        <h3 class="section-title">AI Trading Bots</h3>
+        <p class="section-subtitle">Upgrade your trading with automated AI algorithms</p>
+      </div>
+
+      <div class="bots-container">
+        <div
+          class="bot-card"
+          v-for="bot in tradingBots"
+          :key="bot.id"
+          :class="{ disabled: !hasDeposited }"
+        >
+          <div class="bot-header" :style="{ background: bot.gradient }">
+            <div class="bot-icon">
+              <i :class="bot.icon"></i>
+            </div>
+            <div class="bot-name">{{ bot.name }}</div>
+            <div class="bot-level">{{ bot.level }}</div>
+          </div>
+
+          <div class="bot-content">
+            <div class="bot-price">
+              <span class="price">{{ bot.price }}</span>
+              <span class="period">one-time payment</span>
+            </div>
+
+            <div class="bot-roi">
+              <div class="roi-label">Monthly ROI</div>
+              <div class="roi-value">{{ bot.roi }}</div>
+              <div class="roi-period">{{ bot.roiPeriod }}</div>
+            </div>
+
+            <div class="bot-features">
+              <div class="feature" v-for="feature in bot.features" :key="feature">
+                <i class="fas fa-check"></i>
+                <span>{{ feature }}</span>
+              </div>
+            </div>
+
+            <div class="bot-grace">
+              <i class="fas fa-clock"></i>
+              <span>Grace Period: {{ bot.gracePeriod }}</span>
+            </div>
+
+            <button
+              class="upgrade-bot-btn"
+              @click="upgradeBot(bot)"
+              :disabled="
+                !hasDeposited ||
+                bot.upgraded ||
+                parseFloat(totalBalance.replace('$', '')) < bot.priceValue
+              "
+            >
+              {{ bot.upgraded ? '✓ Active' : hasDeposited ? 'Upgrade Now' : 'Deposit Required' }}
+            </button>
+
+            <div v-if="bot.popular" class="popular-tag">
+              <i class="fas fa-star"></i> MOST POPULAR
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- AI Features -->
     <div class="ai-features">
       <h3 class="section-title">AI-Powered Features</h3>
@@ -198,7 +289,9 @@
           </div>
           <h4>Predictive Analytics</h4>
           <p>Advanced ML models predict market movements</p>
-          <div class="feature-status active"><i class="fas fa-circle"></i> Active</div>
+          <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
+            <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
+          </div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -206,7 +299,9 @@
           </div>
           <h4>Data Mining</h4>
           <p>Real-time analysis of market patterns</p>
-          <div class="feature-status active"><i class="fas fa-circle"></i> Active</div>
+          <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
+            <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
+          </div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -214,7 +309,9 @@
           </div>
           <h4>Auto Trading</h4>
           <p>AI-driven automated trading strategies</p>
-          <div class="feature-status active"><i class="fas fa-circle"></i> Active</div>
+          <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
+            <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
+          </div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
@@ -222,7 +319,9 @@
           </div>
           <h4>Risk Management</h4>
           <p>Smart risk assessment and protection</p>
-          <div class="feature-status active"><i class="fas fa-circle"></i> Active</div>
+          <div class="feature-status" :class="{ active: hasDeposited, inactive: !hasDeposited }">
+            <i class="fas fa-circle"></i> {{ hasDeposited ? 'Active' : 'Available' }}
+          </div>
         </div>
       </div>
     </div>
@@ -309,7 +408,9 @@
             {{ coin.change >= 0 ? '+' : '' }}{{ coin.change }}%
           </span>
           <span class="volume">{{ coin.volume }}</span>
-          <button class="trade-btn" @click.stop="openTradeModal(coin)">Trade</button>
+          <button class="trade-btn" @click.stop="openTradeModal(coin)" :disabled="!hasDeposited">
+            Trade
+          </button>
         </div>
       </div>
     </div>
@@ -352,6 +453,88 @@
       </div>
     </footer>
 
+    <!-- Deposit Modal -->
+    <div v-if="showDepositModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content deposit-modal" @click.stop>
+        <div class="modal-header">
+          <h3><i class="fas fa-wallet"></i> Deposit Funds</h3>
+          <button class="modal-close" @click="closeModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="deposit-amount">
+            <label>Enter Amount (USD)</label>
+            <div class="amount-input">
+              <span class="currency-symbol">$</span>
+              <input type="number" v-model="depositAmount" placeholder="0.00" min="50" step="1" />
+            </div>
+            <div class="amount-presets">
+              <button
+                v-for="preset in [50, 100, 500, 1000, 5000]"
+                :key="preset"
+                @click="depositAmount = preset"
+                :class="{ active: depositAmount == preset }"
+                class="preset-btn"
+              >
+                ${{ preset }}
+              </button>
+            </div>
+          </div>
+
+          <div class="deposit-methods">
+            <h4>Select Payment Method</h4>
+            <div class="methods-grid">
+              <div
+                class="method-card"
+                v-for="method in depositMethods"
+                :key="method.id"
+                :class="{ selected: selectedMethod === method.id }"
+                @click="selectedMethod = method.id"
+              >
+                <div class="method-icon">
+                  <i :class="method.icon"></i>
+                </div>
+                <div class="method-name">{{ method.name }}</div>
+                <div class="method-fee">{{ method.fee }}</div>
+                <div class="method-check" v-if="selectedMethod === method.id">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="deposit-summary">
+            <div class="summary-row">
+              <span>Deposit Amount</span>
+              <span class="amount">${{ depositAmount || '0.00' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Processing Fee</span>
+              <span class="fee">${{ (depositAmount * 0.02).toFixed(2) }}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total to Pay</span>
+              <span class="total-amount">${{ ((depositAmount || 0) * 1.02).toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <button
+            class="btn-primary confirm-deposit-btn"
+            @click="confirmDeposit"
+            :disabled="!depositAmount || depositAmount < 50 || !selectedMethod"
+          >
+            <i class="fas fa-lock"></i> Confirm Deposit
+          </button>
+
+          <div class="deposit-note">
+            <i class="fas fa-info-circle"></i>
+            <p>Minimum deposit: $50. Funds will be available immediately.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Logout Modal -->
     <div v-if="showLogoutModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
@@ -374,47 +557,151 @@
 </template>
 
 <script>
+// Import the CSS file
+import './HomeView.css'
+
 export default {
   name: 'PremiumHome',
   data() {
     return {
-      username: 'Premium Trader', // Default username
+      username: 'Trader',
       activeTab: 'home',
       showLogoutModal: false,
+      showDepositModal: false,
+      hasDeposited: false,
+      totalBalance: '$0.00',
+      balanceTrend: 'neutral',
+      userTier: 'Basic',
+      activeBots: 0,
+      depositAmount: '',
+      selectedMethod: 'crypto',
+
       quickActions: [
         {
           name: 'Deposit',
           icon: 'fas fa-wallet',
           color: 'linear-gradient(135deg, #667eea, #764ba2)',
+          locked: false,
         },
         {
           name: 'Withdraw',
           icon: 'fas fa-money-bill-wave',
           color: 'linear-gradient(135deg, #f093fb, #f5576c)',
+          locked: true,
         },
         {
           name: 'Transfer',
           icon: 'fas fa-exchange-alt',
           color: 'linear-gradient(135deg, #4facfe, #00f2fe)',
+          locked: true,
         },
         {
           name: 'Upgrade',
           icon: 'fas fa-crown',
           color: 'linear-gradient(135deg, #43e97b, #38f9d7)',
+          locked: true,
         },
-        {
-          name: 'Buy',
-          icon: 'fas fa-arrow-up',
-          color: 'linear-gradient(135deg, #fa709a, #fee140)',
-        },
-        {
-          name: 'Sell',
-          icon: 'fas fa-arrow-down',
-          color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
-        },
-        { name: 'Swap', icon: 'fas fa-sync', color: 'linear-gradient(135deg, #a8edea, #fed6e3)' },
-        { name: 'Earn', icon: 'fas fa-coins', color: 'linear-gradient(135deg, #ffd89b, #19547b)' },
       ],
+
+      tradingBots: [
+        {
+          id: 1,
+          name: 'SCALPER PRO',
+          level: 'BASIC',
+          icon: 'fas fa-bolt',
+          gradient: 'linear-gradient(135deg, #667eea, #764ba2)',
+          price: '$299',
+          priceValue: 299,
+          roi: '5-8%',
+          roiPeriod: 'guaranteed monthly',
+          gracePeriod: '7 days',
+          features: ['5-10 trades daily', 'Low risk strategy', 'Basic analytics', 'Email alerts'],
+          upgraded: false,
+          popular: false,
+        },
+        {
+          id: 2,
+          name: 'SWING MASTER',
+          level: 'PRO',
+          icon: 'fas fa-chart-line',
+          gradient: 'linear-gradient(135deg, #00e676, #00c853)',
+          price: '$699',
+          priceValue: 699,
+          roi: '12-18%',
+          roiPeriod: 'average monthly',
+          gracePeriod: '14 days',
+          features: [
+            'Medium-term trades',
+            'Advanced analytics',
+            'Risk management',
+            'SMS + Email alerts',
+          ],
+          upgraded: false,
+          popular: true,
+        },
+        {
+          id: 3,
+          name: 'ARBITRAGE PRO',
+          level: 'EXPERT',
+          icon: 'fas fa-random',
+          gradient: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
+          price: '$1,299',
+          priceValue: 1299,
+          roi: '20-30%',
+          roiPeriod: 'estimated monthly',
+          gracePeriod: '30 days',
+          features: [
+            'Multi-exchange',
+            'Real-time arbitrage',
+            'Advanced controls',
+            'Priority support',
+          ],
+          upgraded: false,
+          popular: false,
+        },
+        {
+          id: 4,
+          name: 'AI MASTER',
+          level: 'VIP',
+          icon: 'fas fa-brain',
+          gradient: 'linear-gradient(135deg, #f093fb, #f5576c)',
+          price: '$2,999',
+          priceValue: 2999,
+          roi: '35-50%',
+          roiPeriod: 'projected monthly',
+          gracePeriod: '60 days',
+          features: [
+            'Machine Learning',
+            'Predictive analytics',
+            'Highest returns',
+            'VIP concierge',
+          ],
+          upgraded: false,
+          popular: false,
+        },
+      ],
+
+      depositMethods: [
+        {
+          id: 'crypto',
+          name: 'Cryptocurrency',
+          icon: 'fab fa-bitcoin',
+          fee: '1% fee',
+        },
+        {
+          id: 'bank',
+          name: 'Bank Transfer',
+          icon: 'fas fa-university',
+          fee: '2% fee',
+        },
+        {
+          id: 'card',
+          name: 'Credit/Debit Card',
+          icon: 'fas fa-credit-card',
+          fee: '3% fee',
+        },
+      ],
+
       cryptoData: [
         {
           symbol: 'BTC',
@@ -444,6 +731,7 @@ export default {
           chartHeight: 92,
         },
       ],
+
       marketData: [
         {
           symbol: 'BTC',
@@ -481,66 +769,17 @@ export default {
           color: '#3B82F6',
           volume: '$1.2B',
         },
-        {
-          symbol: 'DOT',
-          name: 'Polkadot',
-          price: '$6.78',
-          change: 1.2,
-          icon: 'fas fa-circle',
-          color: '#E6007A',
-          volume: '$0.8B',
-        },
-        {
-          symbol: 'AVAX',
-          name: 'Avalanche',
-          price: '$34.21',
-          change: 3.1,
-          icon: 'fas fa-mountain',
-          color: '#E84142',
-          volume: '$1.5B',
-        },
       ],
-      recentTransactions: [
-        {
-          id: 1,
-          type: 'BUY',
-          asset: 'BTC/USDT',
-          time: '10:23 AM',
-          amount: 0.5,
-          currency: 'BTC',
-          status: 'completed',
-          color: 'linear-gradient(135deg, #00e676, #00c853)',
-          icon: 'fas fa-arrow-down',
-        },
-        {
-          id: 2,
-          type: 'SELL',
-          asset: 'ETH/USDT',
-          time: '09:15 AM',
-          amount: -2.4,
-          currency: 'ETH',
-          status: 'completed',
-          color: 'linear-gradient(135deg, #ff6b6b, #ee5a52)',
-          icon: 'fas fa-arrow-up',
-        },
-        {
-          id: 3,
-          type: 'DEPOSIT',
-          asset: 'USDT',
-          time: 'Yesterday',
-          amount: 5000,
-          currency: 'USDT',
-          status: 'completed',
-          color: 'linear-gradient(135deg, #667eea, #764ba2)',
-          icon: 'fas fa-wallet',
-        },
-      ],
+
+      recentTransactions: [],
+
       tradingPairs: [
         { name: 'BTC/ETH', price: '30.12', change: 0.8 },
         { name: 'ETH/SOL', price: '20.95', change: 1.2 },
         { name: 'BTC/SOL', price: '631.5', change: -0.3 },
         { name: 'ADA/DOT', price: '0.066', change: 2.1 },
       ],
+
       navigation: [
         { id: 'home', label: 'Home', icon: 'fas fa-home' },
         { id: 'trade', label: 'Trade', icon: 'fas fa-chart-line' },
@@ -549,1284 +788,230 @@ export default {
       ],
     }
   },
-  mounted() {
-    // Get username from localStorage or use default
-    const userData = localStorage.getItem('userData')
-    if (userData) {
-      try {
-        const parsedData = JSON.parse(userData)
-        this.username = parsedData.name || parsedData.username || 'Premium Trader'
-      } catch (e) {
-        console.error('Error parsing user data:', e)
-      }
-    }
-  },
-  methods: {
-    navigateTo(tabId) {
-      this.activeTab = tabId
 
-      // Handle navigation to different pages
-      switch (tabId) {
-        case 'trade':
-          // Navigate to trade page using path instead of name
-          if (this.$router) {
-            this.$router.push('/trade')
-          } else {
-            window.location.href = '/trade'
+  mounted() {
+    this.loadUserData()
+  },
+
+  methods: {
+    loadUserData() {
+      // Get registered user data from localStorage
+      const registeredUser = localStorage.getItem('registeredUser')
+      if (registeredUser) {
+        try {
+          const user = JSON.parse(registeredUser)
+          this.username = user.name || user.username || user.email || 'Trader'
+
+          // Check for existing balance data
+          const userBalance = localStorage.getItem('userBalance')
+          if (userBalance) {
+            const data = JSON.parse(userBalance)
+            this.hasDeposited = data.hasDeposited || false
+            this.totalBalance = `$${parseFloat(data.balance || 0).toFixed(2)}`
+            this.userTier = data.tier || 'Basic'
+            this.activeBots = data.activeBots || 0
+
+            // Update bot status
+            if (data.upgradedBots) {
+              this.tradingBots.forEach((bot) => {
+                if (data.upgradedBots.includes(bot.id)) {
+                  bot.upgraded = true
+                }
+              })
+            }
+
+            // Unlock actions if deposited
+            if (this.hasDeposited) {
+              this.quickActions.forEach((action) => (action.locked = false))
+            }
           }
-          break
-        case 'wallet':
-          // Navigate to transfer page using path instead of name
-          if (this.$router) {
-            this.$router.push('/transfer')
-          } else {
-            window.location.href = '/transfer'
-          }
-          break
-        case 'account':
-          // Navigate to account page
-          if (this.$router) {
-            this.$router.push('/membership')
-          } else {
-            window.location.href = '/membership'
-          }
-          break
-        default:
-          // For home, just update active state (stay on current page)
-          this.activeTab = 'home'
+        } catch (e) {
+          console.error('Error loading user data:', e)
+        }
       }
     },
+
+    handleDeposit() {
+      this.showDepositModal = true
+    },
+
+    confirmDeposit() {
+      if (!this.depositAmount || this.depositAmount < 50) {
+        alert('Minimum deposit amount is $50')
+        return
+      }
+
+      // Calculate deposit with fee
+      const amount = parseFloat(this.depositAmount)
+      const fee = amount * 0.02
+      const totalReceived = amount - fee
+
+      // Update user state
+      this.totalBalance = `$${totalReceived.toFixed(2)}`
+      this.hasDeposited = true
+      this.balanceTrend = 'positive'
+      this.userTier = 'Premium'
+
+      // Unlock actions
+      this.quickActions.forEach((action) => (action.locked = false))
+
+      // Add transaction
+      this.recentTransactions.unshift({
+        id: Date.now(),
+        type: 'DEPOSIT',
+        asset: 'USD',
+        time: 'Just now',
+        amount: totalReceived,
+        currency: 'USD',
+        status: 'completed',
+        color: 'linear-gradient(135deg, #667eea, #764ba2)',
+        icon: 'fas fa-wallet',
+      })
+
+      // Save to localStorage
+      const userData = {
+        name: this.username,
+        hasDeposited: true,
+        balance: totalReceived,
+        tier: 'Premium',
+        activeBots: this.activeBots,
+        upgradedBots: this.tradingBots.filter((b) => b.upgraded).map((b) => b.id),
+      }
+      localStorage.setItem('userBalance', JSON.stringify(userData))
+
+      // Show success
+      alert(
+        `✅ Deposit successful!\n\nAmount: $${amount.toFixed(2)}\nFee: $${fee.toFixed(2)}\nAvailable: $${totalReceived.toFixed(2)}`,
+      )
+
+      // Close modal
+      this.closeModal()
+    },
+
+    upgradeBot(bot) {
+      if (!this.hasDeposited) {
+        this.handleDeposit()
+        return
+      }
+
+      const balance = parseFloat(this.totalBalance.replace('$', '').replace(',', ''))
+
+      if (balance < bot.priceValue) {
+        alert(
+          `Insufficient balance. You need ${bot.price} to upgrade. Current balance: ${this.totalBalance}`,
+        )
+        return
+      }
+
+      if (
+        !confirm(
+          `Upgrade to ${bot.name} for ${bot.price}?\n\nMonthly ROI: ${bot.roi}\nGrace Period: ${bot.gracePeriod}`,
+        )
+      ) {
+        return
+      }
+
+      // Process upgrade
+      const newBalance = balance - bot.priceValue
+      this.totalBalance = `$${newBalance.toFixed(2)}`
+      bot.upgraded = true
+      this.activeBots++
+
+      // Add transaction
+      this.recentTransactions.unshift({
+        id: Date.now(),
+        type: 'UPGRADE',
+        asset: bot.name,
+        time: 'Just now',
+        amount: -bot.priceValue,
+        currency: 'USD',
+        status: 'completed',
+        color: bot.gradient,
+        icon: bot.icon,
+      })
+
+      // Save data
+      const userData = JSON.parse(localStorage.getItem('userBalance') || '{}')
+      userData.balance = newBalance
+      userData.activeBots = this.activeBots
+      userData.upgradedBots = this.tradingBots.filter((b) => b.upgraded).map((b) => b.id)
+      localStorage.setItem('userBalance', JSON.stringify(userData))
+
+      alert(`✅ Successfully upgraded to ${bot.name}!\n\nYour AI bot is now active and trading.`)
+    },
+
+    handleAction(action) {
+      if (!this.hasDeposited && action !== 'Deposit') {
+        alert('Deposit funds first to unlock this feature.')
+        this.handleDeposit()
+        return
+      }
+
+      switch (action) {
+        case 'Deposit':
+          this.handleDeposit()
+          break
+        case 'Withdraw':
+          alert('Withdrawal feature coming soon!')
+          break
+        case 'Transfer':
+          // Navigate to transfer page
+          break
+        case 'Upgrade':
+          // Scroll to bots section
+          const botsSection = document.querySelector('.trading-bots-section')
+          if (botsSection) {
+            botsSection.scrollIntoView({ behavior: 'smooth' })
+          }
+          break
+      }
+    },
+
+    navigateTo(tabId) {
+      this.activeTab = tabId
+    },
+
     handleLogout() {
       this.showLogoutModal = true
     },
-    confirmLogout() {
-      // Clear user session/token
-      localStorage.removeItem('authToken')
-      localStorage.removeItem('userData')
-      sessionStorage.clear()
 
-      // Close modal first
+    confirmLogout() {
+      localStorage.removeItem('authToken')
+      sessionStorage.clear()
       this.showLogoutModal = false
 
-      // Redirect to login page
       setTimeout(() => {
         if (this.$router) {
-          this.$router.push('/login')
+          this.$router.push('/landingview')
         } else {
-          window.location.href = '/login'
+          window.location.href = '/landingview'
         }
       }, 300)
     },
+
     closeModal() {
       this.showLogoutModal = false
+      this.showDepositModal = false
+      this.depositAmount = ''
+      this.selectedMethod = 'crypto'
     },
-    handleAction(action) {
-      console.log('Action:', action)
 
-      // Handle quick actions
-      switch (action) {
-        case 'Deposit':
-          alert('Deposit functionality coming soon!')
-          break
-        case 'Withdraw':
-          alert('Withdraw functionality coming soon!')
-          break
-        case 'Transfer':
-          this.navigateTo('wallet')
-          break
-        case 'Upgrade':
-          alert('Upgrade functionality coming soon!')
-          break
-        default:
-          alert(`Action: ${action}`)
-      }
-    },
     selectCoin(coin) {
       console.log('Selected:', coin)
     },
-    selectPair(pair) {
-      console.log('Selected pair:', pair)
-    },
-    viewAllTransactions() {
-      console.log('View all transactions')
-    },
-    viewAllMarkets() {
-      console.log('View all markets')
-    },
+
     openTradeModal(coin) {
-      // Navigate to trade page
-      this.navigateTo('trade')
+      if (!this.hasDeposited) {
+        alert('Please deposit funds first to start trading.')
+        this.handleDeposit()
+        return
+      }
+      // Navigate to trade
     },
+
+    viewAllTransactions() {},
+    viewAllMarkets() {},
+    selectPair(pair) {},
   },
 }
 </script>
-
-<style scoped>
-/* Base Styles - FIXED SCROLLING */
-.app-container {
-  min-height: 100vh;
-  background: #0a0f2d;
-  color: white;
-  font-family: 'Arial', sans-serif;
-  position: relative;
-  padding-bottom: 80px; /* Space for bottom nav */
-  overflow-x: hidden;
-  height: 100vh; /* Fixed: Set height to viewport height */
-  overflow-y: auto; /* Fixed: Enable vertical scrolling */
-}
-
-.background-gradient {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(-45deg, #0a0f2d, #1a1f3d, #2a2f4d);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  z-index: -2;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Updated Header with Username */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.logo-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.user-display {
-  display: flex;
-  flex-direction: column;
-}
-
-.welcome-text {
-  font-size: 10px;
-  opacity: 0.7;
-  margin-bottom: 2px;
-}
-
-.username {
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(45deg, #00e676, #00bcd4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-}
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.user-name {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.user-tier {
-  font-size: 10px;
-  opacity: 0.7;
-  color: #00e676;
-}
-
-.logout-btn {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-  border: none;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.3s ease;
-}
-
-.logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-}
-
-/* Banner Section */
-.banner-section {
-  position: relative;
-  padding: 30px 20px;
-  margin: 15px;
-  border-radius: 20px;
-  overflow: hidden;
-  min-height: 250px;
-  display: flex;
-  align-items: center;
-}
-
-.banner-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
-  animation: dataFlow 20s linear infinite;
-  background-size: 200px 200px;
-}
-
-.banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(102, 126, 234, 0.3) 50%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
-}
-
-.banner-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  width: 100%;
-}
-
-.live-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.live-dot {
-  width: 8px;
-  height: 8px;
-  background: #00e676;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.2);
-  }
-}
-
-@keyframes dataFlow {
-  0% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 200px 200px;
-  }
-}
-
-.server-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 230, 118, 0.1);
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #00e676;
-}
-
-.banner-title {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  background: linear-gradient(45deg, #fff, #e0e0e0);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.rainbow-text {
-  background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
-  background-size: 400% 400%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: rainbow 3s ease infinite;
-}
-
-@keyframes rainbow {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.banner-subtitle {
-  opacity: 0.9;
-  font-size: 14px;
-  margin-bottom: 20px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.banner-stats {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-.stat {
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 20px;
-  font-weight: bold;
-  background: linear-gradient(45deg, #00ff88, #0088ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 11px;
-  opacity: 0.8;
-}
-
-/* Dashboard Summary */
-.dashboard-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 0 15px;
-  margin-top: 15px;
-}
-
-.summary-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.summary-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-}
-
-.summary-content {
-  flex: 1;
-}
-
-.summary-value {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-
-.summary-label {
-  font-size: 10px;
-  opacity: 0.7;
-}
-
-.summary-trend {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 6px;
-  border-radius: 6px;
-}
-
-.summary-trend.positive {
-  background: rgba(0, 230, 118, 0.1);
-  color: #00e676;
-}
-
-.summary-trend.neutral {
-  background: rgba(255, 255, 255, 0.1);
-  color: #9ca3af;
-}
-
-/* Partners Section */
-.partners-section {
-  padding: 0 15px;
-  margin-top: 30px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: white;
-}
-
-.partners-container {
-  overflow: hidden;
-  position: relative;
-}
-
-.partners-track {
-  display: flex;
-  animation: scrollPartners 30s linear infinite;
-  gap: 12px;
-}
-
-@keyframes scrollPartners {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.partner-logo {
-  flex-shrink: 0;
-  width: 90px;
-  height: 35px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-weight: bold;
-  color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-}
-
-/* News Ticker */
-.news-ticker {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  margin: 15px;
-  overflow: hidden;
-  display: flex;
-}
-
-.ticker-header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  padding: 10px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.ticker-content {
-  white-space: nowrap;
-  animation: ticker 25s linear infinite;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.8);
-  padding: 10px 15px;
-  flex: 1;
-}
-
-@keyframes ticker {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-/* Quick Actions */
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 0 15px;
-  margin-top: 15px;
-}
-
-.action-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.action-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.action-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-  font-size: 14px;
-}
-
-.action-label {
-  font-size: 9px;
-  font-weight: 500;
-  text-align: center;
-}
-
-/* Crypto Stats */
-.crypto-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 0 15px;
-  margin-top: 15px;
-}
-
-.crypto-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.crypto-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.crypto-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.crypto-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.crypto-info h3 {
-  font-size: 13px;
-  margin: 0;
-}
-
-.crypto-volume {
-  font-size: 9px;
-  opacity: 0.7;
-  margin-top: 2px;
-}
-
-.price {
-  font-size: 14px;
-  font-weight: bold;
-  margin: 4px 0;
-}
-
-.change {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-.price-up,
-.change-up {
-  color: #00e676;
-}
-.change-up {
-  background: rgba(0, 230, 118, 0.1);
-}
-.price-down,
-.change-down {
-  color: #ff1744;
-}
-.change-down {
-  background: rgba(255, 23, 68, 0.1);
-}
-
-.crypto-chart {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: flex-end;
-}
-
-.chart-line {
-  width: 3px;
-  background: linear-gradient(to top, #00e676, #0088ff);
-  margin: 0 2px;
-  border-radius: 2px;
-}
-
-/* AI Features */
-.ai-features {
-  padding: 0 15px;
-  margin-top: 30px;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 15px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.feature-icon {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-  font-size: 20px;
-}
-
-.feature-card h4 {
-  font-size: 14px;
-  margin-bottom: 6px;
-  color: white;
-}
-
-.feature-card p {
-  font-size: 11px;
-  opacity: 0.8;
-  line-height: 1.3;
-  margin-bottom: 8px;
-}
-
-.feature-status {
-  margin-top: 8px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  color: #00e676;
-}
-
-.feature-status.active i {
-  color: #00e676;
-  font-size: 7px;
-}
-
-/* Transactions Section */
-.transactions-section {
-  padding: 0 15px;
-  margin-top: 25px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.view-all-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 9px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  transition: all 0.3s ease;
-}
-
-.view-all-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.transactions-list {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.transaction-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  gap: 10px;
-}
-
-.transaction-item:last-child {
-  border-bottom: none;
-}
-
-.transaction-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.transaction-details {
-  flex: 1;
-}
-
-.transaction-type {
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.transaction-asset {
-  font-size: 10px;
-  opacity: 0.8;
-  margin-top: 2px;
-}
-
-.transaction-time {
-  font-size: 9px;
-  opacity: 0.6;
-  margin-top: 2px;
-}
-
-.transaction-amount {
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.transaction-amount.positive {
-  color: #00e676;
-}
-.transaction-amount.negative {
-  color: #ff6b6b;
-}
-
-.transaction-status {
-  font-size: 9px;
-  padding: 3px 6px;
-  border-radius: 6px;
-  text-transform: uppercase;
-}
-
-.transaction-status.completed {
-  background: rgba(0, 230, 118, 0.1);
-  color: #00e676;
-}
-
-/* Market Section */
-.market-section {
-  padding: 0 15px;
-  margin-top: 25px;
-}
-
-.market-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.market-filters {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.filter-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 9px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.filter-btn.active {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-}
-
-.filter-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.market-table {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 9px;
-  font-weight: 600;
-  opacity: 0.7;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  padding: 10px 12px;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.table-row:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.table-row:last-child {
-  border-bottom: none;
-}
-
-.asset-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.coin-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.coin-symbol {
-  font-weight: 600;
-  font-size: 11px;
-}
-
-.coin-name {
-  font-size: 9px;
-  opacity: 0.7;
-}
-
-.trade-btn {
-  background: linear-gradient(135deg, #00e676, #00c853);
-  border: none;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 9px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.trade-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 10px rgba(0, 230, 118, 0.3);
-}
-
-.volume {
-  font-size: 11px;
-  opacity: 0.8;
-}
-
-/* Trading Pairs */
-.trading-pairs {
-  padding: 0 15px;
-  margin-top: 25px;
-  margin-bottom: 80px; /* Reduced margin for better scrolling */
-}
-
-.pairs-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.pair-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.pair-card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
-}
-
-.pair-info {
-  margin-bottom: 6px;
-}
-
-.pair-name {
-  font-size: 11px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.pair-price {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.pair-change {
-  font-size: 11px;
-  padding: 3px 6px;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-.pair-change.positive {
-  background: rgba(0, 230, 118, 0.1);
-  color: #00e676;
-}
-
-.pair-change.negative {
-  background: rgba(255, 107, 107, 0.1);
-  color: #ff6b6b;
-}
-
-/* Bottom Navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 1000;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 9px;
-}
-
-.nav-item.active {
-  color: #00e676;
-  background: rgba(0, 230, 118, 0.1);
-}
-
-.nav-item i {
-  font-size: 14px;
-}
-
-.nav-item.active i {
-  text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-content {
-  background: #1a1f3d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 400px;
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.modal-body {
-  padding: 20px;
-}
-
-.modal-body p {
-  margin-bottom: 20px;
-  opacity: 0.8;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-secondary {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  flex: 1;
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-  border: none;
-  color: white;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .dashboard-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .crypto-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .actions-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .pairs-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .market-filters {
-    flex-wrap: wrap;
-  }
-
-  .table-header,
-  .table-row {
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-  }
-
-  .volume {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .header {
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .actions-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .banner-title {
-    font-size: 24px;
-  }
-
-  .banner-stats {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .trading-pairs {
-    margin-bottom: 90px;
-  }
-}
-</style>

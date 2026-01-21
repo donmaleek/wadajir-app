@@ -17,25 +17,23 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const userInitial = computed(() => {
-    return currentUser.value.name
-      ? currentUser.value.name.charAt(0).toUpperCase()
-      : 'U'
+    return currentUser.value.name ? currentUser.value.name.charAt(0).toUpperCase() : 'U'
   })
 
   const login = (userData: User) => {
     currentUser.value = { ...userData }
     isAuthenticated.value = true
-    localStorage.setItem('wadajir_user', JSON.stringify(userData))
+    localStorage.setItem('golden_rise_user', JSON.stringify(userData))
   }
 
   const logout = () => {
     currentUser.value = { name: '', email: '', id: '' }
     isAuthenticated.value = false
-    localStorage.removeItem('wadajir_user')
+    localStorage.removeItem('golden_rise_user')
   }
 
   const checkAuth = () => {
-    const savedUser = localStorage.getItem('wadajir_user')
+    const savedUser = localStorage.getItem('golden_rise_user')
     if (savedUser) {
       const user: User = JSON.parse(savedUser)
       login(user)

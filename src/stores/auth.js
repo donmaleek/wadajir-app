@@ -10,14 +10,12 @@ export const useAuthStore = defineStore('auth', () => {
     name: '',
     email: '',
     id: '',
-    token: ''
+    token: '',
   })
 
   // User initial for avatar circle
   const userInitial = computed(() => {
-    return currentUser.value.name
-      ? currentUser.value.name.charAt(0).toUpperCase()
-      : 'U'
+    return currentUser.value.name ? currentUser.value.name.charAt(0).toUpperCase() : 'U'
   })
 
   // Login user + save into localStorage
@@ -26,7 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = true
 
     // Store safely in localStorage
-    localStorage.setItem('wadajir_user', JSON.stringify(userData))
+    localStorage.setItem('golden_rise_user', JSON.stringify(userData))
   }
 
   // Logout user + clear storage + redirect
@@ -35,7 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated.value = false
 
     // Remove saved data
-    localStorage.removeItem('wadajir_user')
+    localStorage.removeItem('golden_rise_user')
 
     // Safely redirect to landing page
     try {
@@ -47,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Load user from localStorage when app loads
   const checkAuth = () => {
-    const savedUser = localStorage.getItem('wadajir_user')
+    const savedUser = localStorage.getItem('golden_rise_user')
     if (savedUser) {
       const user = JSON.parse(savedUser)
       currentUser.value = user
@@ -61,6 +59,6 @@ export const useAuthStore = defineStore('auth', () => {
     userInitial,
     login,
     logout,
-    checkAuth
+    checkAuth,
   }
 })

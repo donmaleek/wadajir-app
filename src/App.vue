@@ -44,9 +44,7 @@ const switchToRegister = () => {
 const handleRegisterSuccess = (userData) => {
   authStore.login(userData)
   showRegisterModal.value = false
-  showToast('Account created successfully! Welcome to Wadajir!')
-
-  // Use router name or path instead of file path
+  showToast('Account created successfully! Welcome to Golden Rise!')
   router.push({ name: 'home' })
 }
 
@@ -54,8 +52,6 @@ const handleLoginSuccess = (userData) => {
   authStore.login(userData)
   showLoginModal.value = false
   showToast('Welcome back!')
-
-  // Use router name or path instead of file path
   router.push({ name: 'home' })
 }
 
@@ -74,10 +70,8 @@ const showToast = (message, type = 'success') => {
 // Watch for authentication changes and redirect
 watch(isAuthenticated, (newVal) => {
   if (newVal) {
-    // If user becomes authenticated, redirect to home using route name
     router.push({ name: 'home' })
   } else {
-    // If user logs out, redirect to landing page
     router.push({ name: 'landing' })
   }
 })
@@ -85,8 +79,6 @@ watch(isAuthenticated, (newVal) => {
 // Lifecycle
 onMounted(() => {
   authStore.checkAuth()
-
-  // If already authenticated, redirect to home
   if (isAuthenticated.value) {
     router.push({ name: 'home' })
   }
@@ -97,14 +89,13 @@ onMounted(() => {
   <div id="app" class="w-full h-full">
     <RainbowBackground />
 
-    <!-- RouterView without fallback content -->
+    <!-- FIXED: Changed to camelCase event listeners -->
     <RouterView
-      @show-register="showRegisterModal = true"
-      @show-login="showLoginModal = true"
-      @show-service="handleServiceClick"
+      @showRegister="showRegisterModal = true"
+      @showLogin="showLoginModal = true"
+      @showService="handleServiceClick"
     />
 
-    <!-- Modern AI Agent with show prop -->
     <ModernAIAgent :show="showAIChat" @update:show="showAIChat = $event" />
 
     <RegisterModal

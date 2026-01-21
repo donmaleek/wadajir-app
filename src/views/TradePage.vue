@@ -419,10 +419,9 @@
                   }"
                 >
                   <i
-                    :class="transfer.type === 'sent' ? 'fas fa-paper-plane' : 'fas fa-download'"
                     :class="{
-                      'text-green-400': transfer.type === 'sent',
-                      'text-cyan-400': transfer.type === 'received',
+                      'fas fa-paper-plane text-green-400': transfer.type === 'sent',
+                      'fas fa-download text-cyan-400': transfer.type === 'received',
                     }"
                   ></i>
                 </div>

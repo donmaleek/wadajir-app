@@ -939,7 +939,20 @@ const MembershipCard = {
   props: {
     level: Object,
     isSelected: Boolean,
-    isCurrent: Boolean
+    isCurrent: Boolean,
+  },
+  computed: {
+    formattedDaily() {
+      return this.formatNumber(this.level.daily)
+    },
+  },
+  methods: {
+    formatNumber(num) {
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(num)
+    },
   },
   template: `
     <div
@@ -987,7 +1000,7 @@ const MembershipCard = {
         <div class="flex items-center justify-between">
           <div class="text-sm opacity-80">Daily Limit</div>
           <div class="font-bold" :style="{ color: level.titleColor }">
-            ${{ formatNumber(level.daily) }}
+            ${{ formattedDaily }}
           </div>
         </div>
         <div class="flex items-center justify-between">
@@ -1019,13 +1032,5 @@ const MembershipCard = {
       </button>
     </div>
   `,
-  methods: {
-    formatNumber(num) {
-      return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(num)
-    }
-  }
 }
 </script>
