@@ -34,6 +34,14 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
+            <!-- Toggle buttons visibility -->
+            <button
+              @click="toggleButtonsVisibility"
+              class="ai-header-btn"
+              :title="showButtons ? 'Hide buttons' : 'Show buttons'"
+            >
+              <i class="fa-solid" :class="showButtons ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
             <button @click="toggleVoice" class="ai-header-btn" :class="{ active: isVoiceActive }">
               <i
                 class="fa-solid"
@@ -170,9 +178,12 @@
           </div>
         </div>
 
-        <!-- Quick Access Buttons -->
+        <!-- Quick Access Buttons - Now conditionally shown -->
         <transition name="fade-slide">
-          <div v-if="showQuickAccess && chatHistory.length > 0" class="quick-access-grid">
+          <div
+            v-if="showQuickAccess && chatHistory.length > 0 && showButtons"
+            class="quick-access-grid"
+          >
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
               <button
                 v-for="(action, index) in quickAccessActions"
@@ -246,8 +257,8 @@
             </div>
           </transition>
 
-          <!-- Suggested Prompts -->
-          <div v-if="showPrompts" class="suggested-prompts">
+          <!-- Suggested Prompts - Also conditionally shown -->
+          <div v-if="showPrompts && showButtons" class="suggested-prompts">
             <div class="prompts-header">
               <span class="text-xs text-gray-400">Suggested Prompts</span>
             </div>
@@ -294,6 +305,7 @@ const isDarkTheme = ref(true)
 const showQuickAccess = ref(true)
 const showWelcome = ref(true)
 const showPrompts = ref(true)
+const showButtons = ref(true) // New state to control button visibility
 const processingPower = ref(85)
 const userInput = ref('')
 const chatMessages = ref<HTMLElement>()
@@ -419,10 +431,15 @@ const currentTime = computed(() => {
 })
 
 // Methods
+const toggleButtonsVisibility = () => {
+  showButtons.value = !showButtons.value
+}
+
 const toggleAIAgent = () => {
   isOpen.value = !isOpen.value
   if (isOpen.value) {
     hasNewMessage.value = false
+    showButtons.value = true // Reset to show buttons when opening chat
     // Auto welcome message
     if (chatHistory.value.length === 0) {
       const welcomeMessage = !isAuthenticated.value
@@ -516,6 +533,7 @@ const sendMessage = async () => {
   addUserMessage(userMessage)
   userInput.value = ''
   showPrompts.value = false
+  showButtons.value = false // Hide buttons when conversation starts
 
   // Simulate AI thinking with processing animation
   isTyping.value = true
@@ -842,6 +860,7 @@ const attachFile = () => {
 const clearChat = () => {
   chatHistory.value = []
   showWelcome.value = true
+  showButtons.value = true // Show buttons when chat is cleared
 
   const welcomeMessage = !isAuthenticated.value
     ? "🧹 **Chat Cleared**<br><br>I'm ready to help you discover Golden Rise mining! What would you like to explore?"
@@ -1247,6 +1266,7 @@ onUnmounted(() => {
 /* Quick Access Grid */
 .quick-access-grid {
   padding: 0 20px 20px;
+  transition: all 0.3s ease;
 }
 
 @media (max-width: 640px) {
@@ -1470,6 +1490,7 @@ onUnmounted(() => {
 /* Suggested Prompts */
 .suggested-prompts {
   margin-top: 16px;
+  transition: all 0.3s ease;
 }
 
 .prompts-grid {
