@@ -1704,4 +1704,301 @@
   .trading-pairs {
     margin-bottom: 90px;
   }
+
+  /* Enhanced Logout Modal Styles */
+
+  /* Animations */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Success Messages */
+  .logout-success-message,
+  .copy-success-message,
+  .deposit-success-message,
+  .upgrade-success-message,
+  .auto-logout-message,
+  .deposit-required-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    z-index: 3000;
+    animation:
+      slideInRight 0.3s ease,
+      fadeOut 0.3s ease 1.5s forwards;
+    max-width: 300px;
+  }
+
+  .logout-success-message {
+    background: linear-gradient(135deg, #00e676, #00c853);
+  }
+
+  .copy-success-message {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  }
+
+  .deposit-success-message {
+    background: linear-gradient(135deg, #00e676, #00c853);
+  }
+
+  .upgrade-success-message {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+  }
+
+  .auto-logout-message {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  }
+
+  .deposit-required-message {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+  }
+
+  .logout-success-content,
+  .copy-success-content,
+  .deposit-success-content,
+  .upgrade-success-content,
+  .auto-logout-content,
+  .deposit-required-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+  }
+
+  .logout-success-content i,
+  .copy-success-content i,
+  .deposit-success-content i,
+  .upgrade-success-content i,
+  .auto-logout-content i,
+  .deposit-required-content i {
+    font-size: 24px;
+  }
+
+  .logout-success-text h4,
+  .copy-success-content span,
+  .deposit-success-text h4,
+  .upgrade-success-text h4,
+  .auto-logout-text h4,
+  .deposit-required-text h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: white;
+  }
+
+  .logout-success-text p,
+  .deposit-success-text p,
+  .upgrade-success-text p,
+  .auto-logout-text p,
+  .deposit-required-text p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+    color: white;
+  }
+
+  /* Enhanced Logout Modal */
+  .logout-modal-content {
+    background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+    border: 1px solid #333;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    animation: modalSlideIn 0.3s ease-out;
+  }
+
+  .logout-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #333;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 82, 0.1));
+  }
+
+  .logout-modal-header h3 {
+    margin: 0;
+    color: #ff6b6b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logout-modal-body {
+    padding: 30px;
+    text-align: center;
+  }
+
+  .logout-icon-large {
+    font-size: 60px;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+  }
+
+  .logout-message {
+    margin-bottom: 25px;
+  }
+
+  .logout-message h4 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .logout-message p {
+    color: #888;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .logout-user-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    text-align: left;
+  }
+
+  .logout-user-info .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .logout-user-info .detail-item:last-child {
+    border-bottom: none;
+  }
+
+  .logout-user-info .detail-label {
+    color: #888;
+    font-size: 14px;
+  }
+
+  .logout-user-info .detail-value {
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .logout-warning {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .logout-warning i {
+    color: #ffc107;
+    font-size: 18px;
+    margin-top: 2px;
+  }
+
+  .logout-warning p {
+    color: #ffc107;
+    margin: 0;
+    font-size: 14px;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  .logout-modal-actions {
+    display: flex;
+    gap: 15px;
+  }
+
+  .logout-btn-confirm {
+    flex: 1;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+
+  .logout-btn-confirm:hover {
+    background: linear-gradient(135deg, #ee5a52, #ff4444);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+  }
+
+  .logout-btn-cancel {
+    flex: 1;
+    background: transparent;
+    color: #667eea;
+    border: 1px solid #667eea;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+
+  .logout-btn-cancel:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive logout modal */
+  @media (max-width: 480px) {
+    .logout-modal-actions {
+      flex-direction: column;
+    }
+
+    .logout-user-info .detail-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .logout-user-info .detail-value {
+      width: 100%;
+      text-align: right;
+    }
+
+    .logout-success-message,
+    .copy-success-message,
+    .deposit-success-message,
+    .upgrade-success-message,
+    .auto-logout-message,
+    .deposit-required-message {
+      left: 20px;
+      right: 20px;
+      max-width: none;
+    }
+  }
 }

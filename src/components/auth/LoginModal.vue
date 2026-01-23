@@ -127,11 +127,12 @@ const showPassword = ref(false)
 const rememberMe = ref(false)
 
 /* ================================
-   📦 User Validation
+   📦 User Validation - FIXED to match registration
 ================================ */
 const getRegisteredUsers = () => {
   try {
-    const users = localStorage.getItem('goldenrise_users')
+    // ✅ FIXED: Changed from 'goldenrise_users' to 'wadajir_users'
+    const users = localStorage.getItem('wadajir_users')
     return users ? JSON.parse(users) : []
   } catch {
     return []
@@ -143,7 +144,7 @@ const isFormValid = computed(() => {
 })
 
 /* ================================
-   🔑 Login Logic
+   🔑 Login Logic - FIXED to match registration
 ================================ */
 const handleLogin = async () => {
   if (!isFormValid.value) {
@@ -165,7 +166,7 @@ const handleLogin = async () => {
       throw new Error('No account found with this email. Please register first.')
     }
 
-    // Compare passwords
+    // Compare passwords - matches registration password storage
     if (user.password && form.value.password !== user.password) {
       throw new Error('Invalid email or password')
     }
@@ -180,7 +181,7 @@ const handleLogin = async () => {
       hasDeposited: user.hasDeposited || false,
     }
 
-    // Save to session
+    // Save to session - also save to other keys for compatibility
     localStorage.setItem(
       'currentUser',
       JSON.stringify({
@@ -190,11 +191,15 @@ const handleLogin = async () => {
       }),
     )
 
+    // ✅ Also save to the key your Home.vue expects
+    localStorage.setItem('registeredUser', JSON.stringify(userData))
+    localStorage.setItem('golden_rise_user', JSON.stringify(userData))
+
     // Update user last login
     const updatedUsers = users.map((u) =>
       u.email === user.email ? { ...u, lastLogin: new Date().toISOString() } : u,
     )
-    localStorage.setItem('goldenrise_users', JSON.stringify(updatedUsers))
+    localStorage.setItem('wadajir_users', JSON.stringify(updatedUsers))
 
     // Emit success
     emit('success', userData)

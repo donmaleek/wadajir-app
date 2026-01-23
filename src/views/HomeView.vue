@@ -38,8 +38,8 @@
         <div class="deposit-info">
           <h3>Account Ready for Funding</h3>
           <p>
-            Your current balance is <strong>$0.00</strong>. Make your $10 LIQUIDITY funding
-            toactivate Mining.
+            Your current balance is <strong>$0.00</strong>. Make your $10 LIQUIDITY funding to
+            activate Mining.
           </p>
         </div>
         <button class="deposit-action-btn" @click="handleDeposit">
@@ -455,21 +455,44 @@
     <div v-if="showDepositModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content deposit-modal" @click.stop>
         <div class="modal-header">
-          <h3><i class="fas fa-wallet"></i> Deposit Funds</h3>
+          <h3><i class="fas fa-wallet"></i> Deposit Funds via Binance</h3>
           <button class="modal-close" @click="closeModal">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="modal-body">
+          <!-- Binance Deposit Instructions -->
+          <div class="binance-instructions">
+            <div class="binance-logo"><i class="fab fa-btc"></i> BINANCE</div>
+            <div class="instructions-content">
+              <h4><i class="fas fa-info-circle"></i> How to Deposit via Binance</h4>
+              <ol class="steps-list">
+                <li><strong>Step 1:</strong> Open Binance App or Website</li>
+                <li>
+                  <strong>Step 2:</strong> Go to <strong>Wallet</strong> →
+                  <strong>Fiat/Spot</strong>
+                </li>
+                <li>
+                  <strong>Step 3:</strong> Click <strong>Deposit</strong> → Select
+                  <strong>Crypto</strong>
+                </li>
+                <li><strong>Step 4:</strong> Choose <strong>USDT (TRC20)</strong> network</li>
+                <li><strong>Step 5:</strong> Copy the Binance wallet address below</li>
+                <li><strong>Step 6:</strong> Send your deposit to that address</li>
+                <li><strong>Step 7:</strong> Upload proof of payment below</li>
+              </ol>
+            </div>
+          </div>
+
           <div class="deposit-amount">
             <label>Enter Amount (USD)</label>
             <div class="amount-input">
               <span class="currency-symbol">$</span>
-              <input type="number" v-model="depositAmount" placeholder="0.00" min="50" step="1" />
+              <input type="number" v-model="depositAmount" placeholder="0.00" min="10" step="1" />
             </div>
             <div class="amount-presets">
               <button
-                v-for="preset in [50, 100, 500, 1000, 5000]"
+                v-for="preset in [10, 50, 100, 500, 1000]"
                 :key="preset"
                 @click="depositAmount = preset"
                 :class="{ active: depositAmount == preset }"
@@ -480,24 +503,56 @@
             </div>
           </div>
 
-          <div class="deposit-methods">
-            <h4>Select Payment Method</h4>
-            <div class="methods-grid">
-              <div
-                class="method-card"
-                v-for="method in depositMethods"
-                :key="method.id"
-                :class="{ selected: selectedMethod === method.id }"
-                @click="selectedMethod = method.id"
-              >
-                <div class="method-icon">
-                  <i :class="method.icon"></i>
+          <!-- Binance Wallet Address -->
+          <div class="wallet-address-section">
+            <h4><i class="fas fa-qrcode"></i> Binance Wallet Address</h4>
+            <div class="wallet-card">
+              <div class="wallet-info">
+                <div class="network-tag"><i class="fas fa-link"></i> TRC20 Network</div>
+                <div class="address-display" @click="copyAddress">
+                  <code class="wallet-address">{{ binanceWalletAddress }}</code>
+                  <span class="copy-btn"> <i class="fas fa-copy"></i> Copy </span>
                 </div>
-                <div class="method-name">{{ method.name }}</div>
-                <div class="method-fee">{{ method.fee }}</div>
-                <div class="method-check" v-if="selectedMethod === method.id">
-                  <i class="fas fa-check-circle"></i>
+                <div class="wallet-note">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Send only USDT (TRC20) to this address
                 </div>
+              </div>
+              <div class="wallet-qr">
+                <div class="qr-placeholder">
+                  <i class="fas fa-qrcode"></i>
+                  <span>QR Code</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Proof Upload -->
+          <div class="proof-upload">
+            <h4><i class="fas fa-cloud-upload-alt"></i> Upload Payment Proof</h4>
+            <div
+              class="upload-area"
+              @click="triggerFileUpload"
+              :class="{ 'has-file': paymentProofFile }"
+            >
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileUpload"
+                accept="image/*,.pdf,.png,.jpg,.jpeg"
+                hidden
+              />
+              <div v-if="!paymentProofFile" class="upload-placeholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload screenshot of transaction</p>
+                <small>Accepted: JPG, PNG, PDF (Max 5MB)</small>
+              </div>
+              <div v-else class="upload-preview">
+                <i class="fas fa-file-invoice"></i>
+                <p>{{ paymentProofFile.name }}</p>
+                <button @click.stop="removeFile" class="remove-file-btn">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -508,64 +563,132 @@
               <span class="amount">${{ depositAmount || '0.00' }}</span>
             </div>
             <div class="summary-row">
-              <span>Processing Fee</span>
-              <span class="fee">${{ (depositAmount * 0.02).toFixed(2) }}</span>
+              <span>Network Fee (Estimated)</span>
+              <span class="fee">$1.00</span>
+            </div>
+            <div class="summary-row">
+              <span>USDT Amount (Approx)</span>
+              <span class="amount">{{ calculateUSDT(depositAmount) }} USDT</span>
             </div>
             <div class="summary-row total">
-              <span>Total to Pay</span>
-              <span class="total-amount">${{ ((depositAmount || 0) * 1.02).toFixed(2) }}</span>
+              <span>Total to Receive</span>
+              <span class="total-amount">${{ depositAmount || '0.00' }}</span>
             </div>
+          </div>
+
+          <div class="verification-note">
+            <i class="fas fa-shield-alt"></i>
+            <p>
+              After sending funds, upload payment proof. Your deposit will be verified within 15-30
+              minutes.
+            </p>
           </div>
 
           <button
             class="btn-primary confirm-deposit-btn"
             @click="confirmDeposit"
-            :disabled="!depositAmount || depositAmount < 50 || !selectedMethod"
+            :disabled="!depositAmount || depositAmount < 10 || !paymentProofFile"
           >
-            <i class="fas fa-lock"></i> Confirm Deposit
+            <i class="fas fa-paper-plane"></i> Submit Payment Proof
           </button>
 
           <div class="deposit-note">
             <i class="fas fa-info-circle"></i>
-            <p>Minimum deposit: $50. Funds will be available immediately.</p>
+            <p>
+              Minimum deposit: $10. Deposits are processed manually. Contact support if not credited
+              within 1 hour.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Logout Modal -->
-    <div v-if="showLogoutModal" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
+    <!-- Binance Payment Pending Modal -->
+    <div v-if="showPendingModal" class="modal-overlay" @click="closePendingModal">
+      <div class="modal-content pending-modal" @click.stop>
         <div class="modal-header">
-          <h3>Confirm Logout</h3>
-          <button class="modal-close" @click="closeModal">
+          <h3><i class="fas fa-clock"></i> Payment Pending Verification</h3>
+          <button class="modal-close" @click="closePendingModal">
             <i class="fas fa-times"></i>
           </button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to logout from Golden Rise Premium Mining?</p>
-          <div class="modal-actions">
-            <button class="btn-secondary" @click="closeModal">Cancel</button>
-            <button class="btn-primary" @click="confirmLogout">Yes, Logout</button>
+          <div class="pending-content">
+            <div class="pending-icon">
+              <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h4>Payment Under Review</h4>
+            <p>
+              Your deposit of <strong>${{ pendingDepositAmount }}</strong> is being verified by our
+              team.
+            </p>
+
+            <div class="pending-details">
+              <div class="detail-item">
+                <i class="fas fa-wallet"></i>
+                <span>Binance Address:</span>
+                <code>{{ binanceWalletAddressShort }}</code>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-clock"></i>
+                <span>Estimated Time:</span>
+                <strong>15-30 minutes</strong>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-envelope"></i>
+                <span>Notification:</span>
+                <strong>Email will be sent</strong>
+              </div>
+            </div>
+
+            <div class="verification-steps">
+              <h5>Verification Process:</h5>
+              <ol>
+                <li :class="{ active: verificationStep >= 1 }">Payment proof received</li>
+                <li :class="{ active: verificationStep >= 2 }">Checking blockchain</li>
+                <li :class="{ active: verificationStep >= 3 }">Confirming transaction</li>
+                <li :class="{ active: verificationStep >= 4 }">Crediting your account</li>
+              </ol>
+            </div>
+
+            <button class="btn-secondary" @click="closePendingModal">
+              <i class="fas fa-check"></i> I Understand
+            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Import and use your LogoutModal component -->
+    <LogoutModal
+      :visible="showLogoutModal"
+      :userEmail="userEmail"
+      :userBalance="totalBalance"
+      :activeBots="activeBots"
+      @close="closeLogoutModal"
+      @confirm="confirmLogout"
+    />
   </div>
 </template>
 
 <script>
 // Import the CSS file
 import './HomeView.css'
+// Import your LogoutModal component
+import LogoutModal from '@/components/auth/LogoutModal.vue'
 
 export default {
   name: 'PremiumHome',
+  components: {
+    LogoutModal,
+  },
   data() {
     return {
       username: 'Trader',
       activeTab: 'home',
       showLogoutModal: false,
       showDepositModal: false,
+      showPendingModal: false,
       hasDeposited: false,
       totalBalance: '$0.00',
       balanceTrend: 'neutral',
@@ -573,6 +696,15 @@ export default {
       activeBots: 0,
       depositAmount: '',
       selectedMethod: 'crypto',
+      paymentProofFile: null,
+      pendingDepositAmount: 0,
+      verificationStep: 1,
+      userEmail: '',
+      sessionInterval: null,
+
+      // Binance wallet address (replace with actual address in production)
+      binanceWalletAddress: 'TY76fVHAqQkU4V6qyQ5Q5Y5Q5Y5Q5Y5Q5Y5Q5',
+      binanceWalletAddressShort: 'TY76...5Y5Q5',
 
       quickActions: [
         {
@@ -682,21 +814,9 @@ export default {
       depositMethods: [
         {
           id: 'crypto',
-          name: 'Cryptocurrency',
-          icon: 'fab fa-bitcoin',
+          name: 'Binance (USDT)',
+          icon: 'fab fa-btc',
           fee: '1% fee',
-        },
-        {
-          id: 'bank',
-          name: 'Bank Transfer',
-          icon: 'fas fa-university',
-          fee: '2% fee',
-        },
-        {
-          id: 'card',
-          name: 'Credit/Debit Card',
-          icon: 'fas fa-credit-card',
-          fee: '3% fee',
         },
       ],
 
@@ -789,18 +909,35 @@ export default {
 
   mounted() {
     this.loadUserData()
+    // Start verification simulation if pending
+    const pendingDeposit = localStorage.getItem('pendingDeposit')
+    if (pendingDeposit) {
+      this.simulateVerification()
+    }
+
+    // Add session timeout detection
+    this.setupSessionTimeout()
+  },
+
+  beforeDestroy() {
+    // Clean up interval when component is destroyed
+    if (this.sessionInterval) {
+      clearInterval(this.sessionInterval)
+    }
   },
 
   methods: {
     loadUserData() {
-      // Get registered user data from localStorage
-      const registeredUser = localStorage.getItem('registeredUser')
-      if (registeredUser) {
-        try {
-          const user = JSON.parse(registeredUser)
-          this.username = user.name || user.username || user.email || 'Trader'
+      // FIX: Check BOTH storage keys to handle the mismatch
+      let userData =
+        localStorage.getItem('golden_rise_user') || localStorage.getItem('registeredUser')
 
-          // Check for existing balance data
+      if (userData) {
+        try {
+          const user = JSON.parse(userData)
+          this.username = user.name || user.username || user.email || 'Trader'
+          this.userEmail = user.email || user.username || 'user@example.com'
+
           const userBalance = localStorage.getItem('userBalance')
           if (userBalance) {
             const data = JSON.parse(userBalance)
@@ -809,7 +946,6 @@ export default {
             this.userTier = data.tier || 'Basic'
             this.activeBots = data.activeBots || 0
 
-            // Update bot status
             if (data.upgradedBots) {
               this.tradingBots.forEach((bot) => {
                 if (data.upgradedBots.includes(bot.id)) {
@@ -818,7 +954,6 @@ export default {
               })
             }
 
-            // Unlock actions if deposited
             if (this.hasDeposited) {
               this.quickActions.forEach((action) => (action.locked = false))
             }
@@ -833,19 +968,142 @@ export default {
       this.showDepositModal = true
     },
 
+    triggerFileUpload() {
+      this.$refs.fileInput.click()
+    },
+
+    handleFileUpload(event) {
+      const file = event.target.files[0]
+      if (file) {
+        // Check file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File size too large. Maximum size is 5MB.')
+          return
+        }
+        this.paymentProofFile = file
+      }
+    },
+
+    removeFile() {
+      this.paymentProofFile = null
+      this.$refs.fileInput.value = ''
+    },
+
+    copyAddress() {
+      navigator.clipboard
+        .writeText(this.binanceWalletAddress)
+        .then(() => {
+          this.showCopySuccess()
+        })
+        .catch((err) => {
+          console.error('Failed to copy:', err)
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea')
+          textArea.value = this.binanceWalletAddress
+          document.body.appendChild(textArea)
+          textArea.select()
+          try {
+            document.execCommand('copy')
+            this.showCopySuccess()
+          } catch (err) {
+            console.error('Fallback copy failed:', err)
+          }
+          document.body.removeChild(textArea)
+        })
+    },
+
+    showCopySuccess() {
+      const copyMessage = document.createElement('div')
+      copyMessage.className = 'copy-success-message'
+      copyMessage.innerHTML = `
+        <div class="copy-success-content">
+          <i class="fas fa-check-circle"></i>
+          <span>Address copied to clipboard!</span>
+        </div>
+      `
+
+      copyMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #00e676, #00c853);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 230, 118, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 1.5s forwards;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(copyMessage)
+
+      setTimeout(() => {
+        if (copyMessage.parentNode) {
+          copyMessage.parentNode.removeChild(copyMessage)
+        }
+      }, 1800)
+    },
+
+    calculateUSDT(amount) {
+      if (!amount) return '0.00'
+      // Assuming 1 USDT = 1 USD
+      return parseFloat(amount).toFixed(2)
+    },
+
     confirmDeposit() {
-      if (!this.depositAmount || this.depositAmount < 50) {
-        alert('Minimum deposit amount is $50')
+      if (!this.depositAmount || this.depositAmount < 10) {
+        alert('Minimum deposit amount is $10')
         return
       }
 
-      // Calculate deposit with fee
+      if (!this.paymentProofFile) {
+        alert('Please upload payment proof from Binance')
+        return
+      }
+
+      // Save pending deposit
+      const pendingDeposit = {
+        amount: this.depositAmount,
+        timestamp: Date.now(),
+        status: 'pending',
+        file: this.paymentProofFile.name,
+      }
+      localStorage.setItem('pendingDeposit', JSON.stringify(pendingDeposit))
+
+      // Show pending modal
+      this.pendingDepositAmount = this.depositAmount
+      this.showDepositModal = false
+      this.showPendingModal = true
+
+      // Start verification simulation
+      this.simulateVerification()
+    },
+
+    simulateVerification() {
+      this.verificationStep = 1
+      const steps = [1, 2, 3, 4]
+      let currentStep = 0
+
+      const interval = setInterval(() => {
+        if (currentStep < steps.length) {
+          this.verificationStep = steps[currentStep]
+          currentStep++
+        } else {
+          clearInterval(interval)
+          // After verification completes, process deposit
+          setTimeout(() => {
+            this.processDeposit()
+          }, 2000)
+        }
+      }, 3000)
+    },
+
+    processDeposit() {
       const amount = parseFloat(this.depositAmount)
-      const fee = amount * 0.02
-      const totalReceived = amount - fee
 
       // Update user state
-      this.totalBalance = `$${totalReceived.toFixed(2)}`
+      this.totalBalance = `$${amount.toFixed(2)}`
       this.hasDeposited = true
       this.balanceTrend = 'positive'
       this.userTier = 'Premium'
@@ -856,34 +1114,69 @@ export default {
       // Add transaction
       this.recentTransactions.unshift({
         id: Date.now(),
-        type: 'DEPOSIT',
-        asset: 'USD',
+        type: 'BINANCE DEPOSIT',
+        asset: 'USDT',
         time: 'Just now',
-        amount: totalReceived,
+        amount: amount,
         currency: 'USD',
         status: 'completed',
-        color: 'linear-gradient(135deg, #667eea, #764ba2)',
-        icon: 'fas fa-wallet',
+        color: 'linear-gradient(135deg, #F0B90B, #F0B90B)',
+        icon: 'fab fa-btc',
       })
 
       // Save to localStorage
       const userData = {
         name: this.username,
         hasDeposited: true,
-        balance: totalReceived,
+        balance: amount,
         tier: 'Premium',
         activeBots: this.activeBots,
         upgradedBots: this.tradingBots.filter((b) => b.upgraded).map((b) => b.id),
       }
       localStorage.setItem('userBalance', JSON.stringify(userData))
 
-      // Show success
-      alert(
-        `✅ Deposit successful!\n\nAmount: $${amount.toFixed(2)}\nFee: $${fee.toFixed(2)}\nAvailable: $${totalReceived.toFixed(2)}`,
-      )
+      // Clear pending deposit
+      localStorage.removeItem('pendingDeposit')
 
-      // Close modal
-      this.closeModal()
+      // Close modal and show success
+      this.closePendingModal()
+      this.showDepositSuccess(amount)
+    },
+
+    showDepositSuccess(amount) {
+      const successMessage = document.createElement('div')
+      successMessage.className = 'deposit-success-message'
+      successMessage.innerHTML = `
+        <div class="deposit-success-content">
+          <i class="fas fa-check-circle"></i>
+          <div class="deposit-success-text">
+            <h4>Deposit Successful!</h4>
+            <p>$${amount.toFixed(2)} has been credited to your account.</p>
+          </div>
+        </div>
+      `
+
+      successMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #00e676, #00c853);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 230, 118, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2s forwards;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(successMessage)
+
+      setTimeout(() => {
+        if (successMessage.parentNode) {
+          successMessage.parentNode.removeChild(successMessage)
+        }
+      }, 2300)
     },
 
     upgradeBot(bot) {
@@ -896,8 +1189,9 @@ export default {
 
       if (balance < bot.priceValue) {
         alert(
-          `Insufficient balance. You need ${bot.price} to upgrade. Current balance: ${this.totalBalance}`,
+          `Insufficient balance. You need ${bot.price} to upgrade. Current balance: ${this.totalBalance}\n\nPlease make a deposit via Binance to continue.`,
         )
+        this.handleDeposit()
         return
       }
 
@@ -935,12 +1229,48 @@ export default {
       userData.upgradedBots = this.tradingBots.filter((b) => b.upgraded).map((b) => b.id)
       localStorage.setItem('userBalance', JSON.stringify(userData))
 
-      alert(`✅ Successfully upgraded to ${bot.name}!\n\nYour AI bot is now active and trading.`)
+      this.showUpgradeSuccess(bot.name)
+    },
+
+    showUpgradeSuccess(botName) {
+      const successMessage = document.createElement('div')
+      successMessage.className = 'upgrade-success-message'
+      successMessage.innerHTML = `
+        <div class="upgrade-success-content">
+          <i class="fas fa-robot"></i>
+          <div class="upgrade-success-text">
+            <h4>Bot Activated!</h4>
+            <p>${botName} is now active and mining.</p>
+          </div>
+        </div>
+      `
+
+      successMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2s forwards;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(successMessage)
+
+      setTimeout(() => {
+        if (successMessage.parentNode) {
+          successMessage.parentNode.removeChild(successMessage)
+        }
+      }, 2300)
     },
 
     handleAction(action) {
       if (!this.hasDeposited && action !== 'Deposit') {
-        alert('Deposit funds first to unlock this feature.')
+        alert('Deposit funds first via Binance to unlock this feature.')
         this.handleDeposit()
         return
       }
@@ -950,13 +1280,12 @@ export default {
           this.handleDeposit()
           break
         case 'Withdraw':
-          alert('Withdrawal feature coming soon!')
+          alert('Withdrawals are processed via Binance. Contact support for assistance.')
           break
         case 'Transfer':
           // Navigate to transfer page
           break
         case 'Upgrade':
-          // Scroll to bots section
           const botsSection = document.querySelector('.trading-bots-section')
           if (botsSection) {
             botsSection.scrollIntoView({ behavior: 'smooth' })
@@ -973,18 +1302,148 @@ export default {
       this.showLogoutModal = true
     },
 
+    closeLogoutModal() {
+      this.showLogoutModal = false
+    },
+
     confirmLogout() {
-      localStorage.removeItem('authToken')
+      console.log('🛑 Starting logout process...')
+
+      // Clear ALL localStorage data
+      localStorage.clear()
       sessionStorage.clear()
+
+      // Clear session interval
+      if (this.sessionInterval) {
+        clearInterval(this.sessionInterval)
+        this.sessionInterval = null
+      }
+
+      // Close modal
       this.showLogoutModal = false
 
+      // Show logout success message
+      this.showLogoutSuccess()
+
+      // Redirect to landing page after showing message
       setTimeout(() => {
-        if (this.$router) {
-          this.$router.push('/landingview')
-        } else {
-          window.location.href = '/landingview'
+        // Force a hard redirect to ensure clean state
+        window.location.href = '/wadajir-app/'
+      }, 1200)
+    },
+
+    showLogoutSuccess() {
+      const logoutMessage = document.createElement('div')
+      logoutMessage.className = 'logout-success-message'
+      logoutMessage.innerHTML = `
+        <div class="logout-success-content">
+          <i class="fas fa-check-circle"></i>
+          <div class="logout-success-text">
+            <h4>Logged out successfully!</h4>
+            <p>Redirecting to home page...</p>
+          </div>
+        </div>
+      `
+
+      logoutMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #00e676, #00c853);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 230, 118, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 1.2s forwards;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(logoutMessage)
+
+      setTimeout(() => {
+        if (logoutMessage.parentNode) {
+          logoutMessage.parentNode.removeChild(logoutMessage)
         }
-      }, 300)
+      }, 1500)
+    },
+
+    setupSessionTimeout() {
+      // Set session timeout to 30 minutes (in milliseconds)
+      const SESSION_TIMEOUT = 30 * 60 * 1000
+      let lastActivity = Date.now()
+
+      // Update last activity on user interaction
+      const updateActivity = () => {
+        lastActivity = Date.now()
+      }
+
+      // Add event listeners for user activity
+      ;['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach((event) => {
+        document.addEventListener(event, updateActivity)
+      })
+
+      // Check session every minute
+      this.sessionInterval = setInterval(() => {
+        const currentTime = Date.now()
+        if (currentTime - lastActivity > SESSION_TIMEOUT) {
+          // Auto logout due to inactivity
+          this.autoLogout()
+        }
+      }, 60000) // Check every minute
+    },
+
+    autoLogout() {
+      console.log('🛑 Auto logout due to inactivity...')
+
+      // Clear interval
+      if (this.sessionInterval) {
+        clearInterval(this.sessionInterval)
+        this.sessionInterval = null
+      }
+
+      // Show auto logout message
+      const autoLogoutMessage = document.createElement('div')
+      autoLogoutMessage.className = 'auto-logout-message'
+      autoLogoutMessage.innerHTML = `
+        <div class="auto-logout-content">
+          <i class="fas fa-clock"></i>
+          <div class="auto-logout-text">
+            <h4>Session Timeout</h4>
+            <p>You've been logged out due to inactivity.</p>
+          </div>
+        </div>
+      `
+
+      autoLogoutMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(autoLogoutMessage)
+
+      // Clear data
+      localStorage.clear()
+      sessionStorage.clear()
+
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        if (autoLogoutMessage.parentNode) {
+          autoLogoutMessage.parentNode.removeChild(autoLogoutMessage)
+        }
+
+        // Redirect to landing page
+        window.location.href = '/wadajir-app/'
+      }, 3000)
     },
 
     closeModal() {
@@ -992,6 +1451,12 @@ export default {
       this.showDepositModal = false
       this.depositAmount = ''
       this.selectedMethod = 'crypto'
+      this.paymentProofFile = null
+    },
+
+    closePendingModal() {
+      this.showPendingModal = false
+      this.verificationStep = 1
     },
 
     selectCoin(coin) {
@@ -1000,11 +1465,47 @@ export default {
 
     openTradeModal(coin) {
       if (!this.hasDeposited) {
-        alert('Please deposit funds first to start trading.')
-        this.handleDeposit()
+        this.showDepositRequired()
         return
       }
       // Navigate to trade
+    },
+
+    showDepositRequired() {
+      const depositMessage = document.createElement('div')
+      depositMessage.className = 'deposit-required-message'
+      depositMessage.innerHTML = `
+        <div class="deposit-required-content">
+          <i class="fas fa-wallet"></i>
+          <div class="deposit-required-text">
+            <h4>Deposit Required</h4>
+            <p>Please deposit funds first to start mining.</p>
+          </div>
+        </div>
+      `
+
+      depositMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        z-index: 3000;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2s forwards;
+        max-width: 300px;
+      `
+
+      document.body.appendChild(depositMessage)
+
+      setTimeout(() => {
+        if (depositMessage.parentNode) {
+          depositMessage.parentNode.removeChild(depositMessage)
+        }
+        this.handleDeposit()
+      }, 2000)
     },
 
     viewAllTransactions() {},

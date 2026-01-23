@@ -45,14 +45,14 @@ const handleRegisterSuccess = (userData) => {
   authStore.login(userData)
   showRegisterModal.value = false
   showToast('Account created successfully! Welcome to Golden Rise!')
-  router.push({ name: 'home' })
+  router.push({ name: 'Home' }) // ← FIXED: Changed 'home' to 'Home'
 }
 
 const handleLoginSuccess = (userData) => {
   authStore.login(userData)
   showLoginModal.value = false
   showToast('Welcome back!')
-  router.push({ name: 'home' })
+  router.push({ name: 'Home' }) // ← FIXED: Changed 'home' to 'Home'
 }
 
 const handleServiceClick = () => {
@@ -70,9 +70,9 @@ const showToast = (message, type = 'success') => {
 // Watch for authentication changes and redirect
 watch(isAuthenticated, (newVal) => {
   if (newVal) {
-    router.push({ name: 'home' })
+    router.push({ name: 'Home' }) // ← FIXED: Changed 'home' to 'Home'
   } else {
-    router.push({ name: 'landing' })
+    router.push({ name: 'Landing' }) // Note: Your router has 'Landing' not 'landing'
   }
 })
 
@@ -80,7 +80,7 @@ watch(isAuthenticated, (newVal) => {
 onMounted(() => {
   authStore.checkAuth()
   if (isAuthenticated.value) {
-    router.push({ name: 'home' })
+    router.push({ name: 'Home' }) // ← FIXED: Changed 'home' to 'Home'
   }
 })
 </script>
