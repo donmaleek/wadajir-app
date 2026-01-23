@@ -9,7 +9,7 @@
             <i class="fa-solid fa-robot"></i>
           </div>
           <div class="header-text">
-            <h2>WADAJIR AI Assistant</h2>
+            <h2>Golden Rise AI Assistant</h2>
             <p class="status" :class="statusClass">{{ statusText }}</p>
           </div>
         </div>
@@ -91,7 +91,7 @@
           </button>
         </div>
         <div class="input-footer">
-          <p>WADAJIR AI may produce inaccurate information about people, places, or facts.</p>
+          <p>Golden Rise AI may produce inaccurate information about people, places, or facts.</p>
         </div>
       </div>
     </div>

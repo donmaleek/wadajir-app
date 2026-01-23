@@ -1,20 +1,5 @@
 <template>
   <div class="parent-landing-container">
-    <!-- Debug Panel (temporary) -->
-    <div class="debug-panel" v-if="showDebug">
-      <div class="debug-content">
-        <h3>Debug Panel</h3>
-        <p>Login Visible: {{ loginVisible }}</p>
-        <p>Register Visible: {{ registerVisible }}</p>
-        <p>Service Visible: {{ serviceVisible }}</p>
-        <div class="debug-buttons">
-          <button @click="openLogin" class="debug-btn">Show Login</button>
-          <button @click="openRegister" class="debug-btn">Show Register</button>
-          <button @click="toggleDebug" class="debug-btn">Hide Debug</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Landing Page -->
     <LandingPage
       @showLogin="openLogin"
@@ -61,33 +46,24 @@ const authStore = useAuthStore()
 const loginVisible = ref(false)
 const registerVisible = ref(false)
 const serviceVisible = ref(false)
-const showDebug = ref(true)
 
 /* Refs */
 const landingRef = ref(null)
 
-/* Toggle debug panel */
-const toggleDebug = () => {
-  showDebug.value = !showDebug.value
-}
-
 /* Modal open handlers */
 const openLogin = () => {
-  console.log('🔵 ParentLanding: openLogin')
   loginVisible.value = true
   registerVisible.value = false
   serviceVisible.value = false
 }
 
 const openRegister = () => {
-  console.log('🟢 ParentLanding: openRegister')
   registerVisible.value = true
   loginVisible.value = false
   serviceVisible.value = false
 }
 
 const openService = () => {
-  console.log('🟡 ParentLanding: openService')
   serviceVisible.value = true
   loginVisible.value = false
   registerVisible.value = false
@@ -106,9 +82,7 @@ const switchToLogin = () => {
 
 /* Login success */
 const handleLoginSuccess = (userData) => {
-  console.log('✅ Login success', userData)
-
-  authStore.login(userData) // ❗ NO await
+  authStore.login(userData)
   loginVisible.value = false
 
   nextTick(() => {
@@ -118,9 +92,7 @@ const handleLoginSuccess = (userData) => {
 
 /* Register success */
 const handleRegisterSuccess = (userData) => {
-  console.log('✅ Register success', userData)
-
-  authStore.login(userData) // ❗ NO await
+  authStore.login(userData)
   registerVisible.value = false
 
   nextTick(() => {
@@ -128,17 +100,10 @@ const handleRegisterSuccess = (userData) => {
   })
 }
 
-/* Logout */
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/')
-}
-
-/* Watch auth state (debug + safety) */
+/* Watch auth state */
 watch(
   () => authStore.isAuthenticated,
   (v) => {
-    console.log('🔐 Auth state changed →', v)
     if (v) {
       router.push('/home')
     }
@@ -147,8 +112,7 @@ watch(
 
 /* Lifecycle */
 onMounted(() => {
-  console.log('🚀 ParentLanding mounted')
-  console.log('Landing ref:', landingRef.value)
+  console.log('ParentLanding mounted')
 })
 </script>
 
@@ -158,20 +122,5 @@ onMounted(() => {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-}
-
-/* Debug Panel */
-.debug-panel {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.9);
-  border: 2px solid #6366f1;
-  border-radius: 12px;
-  padding: 16px;
-  z-index: 9999;
-  color: white;
-  font-family: monospace;
-  max-width: 300px;
 }
 </style>

@@ -65,7 +65,7 @@ import { ref } from 'vue'
 const emit = defineEmits(['showLogin', 'showRegister'])
 
 const currentLanguage = ref('EN')
-const currentYear = ref(new Date().getFullYear()) // reactive year
+const currentYear = ref(new Date().getFullYear())
 
 const toggleLanguage = () => {
   currentLanguage.value = currentLanguage.value === 'EN' ? 'SO' : 'EN'
@@ -89,6 +89,7 @@ const handleLogin = () => {
   background-color: #050510;
   font-family: 'Montserrat', sans-serif;
   position: relative;
+  overflow: hidden;
 }
 
 /* Background */

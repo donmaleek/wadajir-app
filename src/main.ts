@@ -1,26 +1,38 @@
+// src/main.ts
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import './style.css'
 
-import { useAuthStore } from './stores/auth'
-
 // Create app
 const app = createApp(App)
 
-// Create Pinia
+// Create and register Pinia FIRST
 const pinia = createPinia()
-
-// Register Pinia
 app.use(pinia)
 
-// ✅ IMPORTANT: pass pinia instance to store
-const authStore = useAuthStore(pinia)
-authStore.initAuth()
-
-// Register router AFTER auth init
+// Register router
 app.use(router)
 
-// Mount app
+// Mount the app
 app.mount('#app')
+
+// ✅ Initialize auth AFTER app is mounted
+// This ensures the Pinia instance is fully ready
+import { useAuthStore } from './stores/auth'
+
+// Use setTimeout to ensure DOM is ready
+setTimeout(() => {
+  try {
+    const authStore = useAuthStore()
+    console.log('🚀 Initializing auth store...')
+    authStore.initAuth()
+    console.log('✅ Auth initialized:', {
+      isAuthenticated: authStore.isAuthenticated,
+      user: authStore.currentUser,
+    })
+  } catch (error) {
+    console.error('❌ Failed to initialize auth:', error)
+  }
+}, 100)

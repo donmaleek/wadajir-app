@@ -126,12 +126,8 @@ const error = ref('')
 const showPassword = ref(false)
 const rememberMe = ref(false)
 
-/* ================================
-   📦 User Validation - FIXED to match registration
-================================ */
 const getRegisteredUsers = () => {
   try {
-    // ✅ FIXED: Changed from 'goldenrise_users' to 'wadajir_users'
     const users = localStorage.getItem('wadajir_users')
     return users ? JSON.parse(users) : []
   } catch {
@@ -143,9 +139,6 @@ const isFormValid = computed(() => {
   return form.value.email && form.value.password
 })
 
-/* ================================
-   🔑 Login Logic - FIXED to match registration
-================================ */
 const handleLogin = async () => {
   if (!isFormValid.value) {
     error.value = 'Please fill in all fields'
@@ -166,7 +159,7 @@ const handleLogin = async () => {
       throw new Error('No account found with this email. Please register first.')
     }
 
-    // Compare passwords - matches registration password storage
+    // Compare passwords
     if (user.password && form.value.password !== user.password) {
       throw new Error('Invalid email or password')
     }
@@ -181,7 +174,7 @@ const handleLogin = async () => {
       hasDeposited: user.hasDeposited || false,
     }
 
-    // Save to session - also save to other keys for compatibility
+    // Save to session
     localStorage.setItem(
       'currentUser',
       JSON.stringify({
@@ -191,7 +184,7 @@ const handleLogin = async () => {
       }),
     )
 
-    // ✅ Also save to the key your Home.vue expects
+    // Save to keys for compatibility
     localStorage.setItem('registeredUser', JSON.stringify(userData))
     localStorage.setItem('golden_rise_user', JSON.stringify(userData))
 
@@ -215,9 +208,6 @@ const handleLogin = async () => {
   }
 }
 
-/* ================================
-   🔄 Restore Remember Me
-================================ */
 onMounted(() => {
   const savedUser = localStorage.getItem('currentUser')
 
@@ -273,7 +263,7 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-/* Reuse all other styles from the register modal */
+/* Close Button */
 .close-button {
   position: absolute;
   top: clamp(16px, 3vw, 20px);
