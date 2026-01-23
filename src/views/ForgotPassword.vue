@@ -1,11 +1,13 @@
 <template>
-  <div class="modal-overlay" @click.self="$emit('close')">
+  <!-- Modal version -->
+  <div v-if="isModal" class="modal-overlay" @click.self="handleCloseModal">
     <div class="modal-content" @click.stop>
-      <!-- Close Button -->
-      <button class="close-button" @click="$emit('close')">
+      <!-- Close Button - Goes to landing page -->
+      <button class="close-button" @click="handleGoToLanding">
         <i class="fa-solid fa-times"></i>
       </button>
 
+      <!-- Rest of your modal content remains exactly the same... -->
       <!-- Logo Container -->
       <div class="modal-logo-container">
         <div class="tech-ring ring-1"></div>
@@ -70,9 +72,7 @@
         <div class="auth-switch">
           <p>
             Remember your password?
-            <a href="#" @click.prevent="$emit('switch-to-login')" class="switch-link">
-              Back to Login
-            </a>
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
           </p>
         </div>
 
@@ -135,6 +135,14 @@
             </span>
             <span v-else class="button-text"> Verify Code </span>
           </button>
+        </div>
+
+        <!-- Back to Login link in Step 2 -->
+        <div class="auth-switch">
+          <p>
+            Remember your password?
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
+          </p>
         </div>
 
         <div v-if="error" class="error-message">
@@ -245,6 +253,304 @@
           </button>
         </div>
 
+        <!-- Back to Login link in Step 3 -->
+        <div class="auth-switch">
+          <p>
+            Remember your password?
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
+          </p>
+        </div>
+
+        <div v-if="error" class="error-message">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ error }}
+        </div>
+      </form>
+
+      <!-- Success Step -->
+      <div class="success-step" v-else>
+        <div class="success-icon">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="success-title">Password Reset Successful!</h3>
+        <p class="success-message">
+          Your password has been successfully reset. You can now log in with your new password.
+        </p>
+
+        <div class="modal-buttons">
+          <button @click="handleBackToLogin" class="success-btn">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            Back to Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full page version (when accessed via /forgot-password route) -->
+  <div v-else class="forgot-password-page">
+    <!-- Page header with back button -->
+    <div class="page-header">
+      <button class="back-button" @click="handleGoToLanding">
+        <i class="fa-solid fa-arrow-left"></i> Back to Landing
+      </button>
+    </div>
+
+    <!-- Same content as modal but without modal wrapper -->
+    <div class="page-content">
+      <!-- Logo Container -->
+      <div class="modal-logo-container">
+        <div class="tech-ring ring-1"></div>
+        <div class="tech-ring ring-2"></div>
+
+        <div class="rainbow-border-circle">
+          <div class="logo-inner">
+            <i class="fa-solid fa-key logo-icon"></i>
+          </div>
+        </div>
+
+        <div class="orbital-dot"></div>
+      </div>
+
+      <!-- Title -->
+      <h3 class="modal-title">Reset Your Password</h3>
+      <p class="modal-subtitle">Enter your email to receive password reset instructions</p>
+
+      <!-- Progress Steps -->
+      <div class="progress-steps" v-if="currentStep < 3">
+        <div class="step" :class="{ active: currentStep >= 1, completed: currentStep > 1 }">
+          <div class="step-number">1</div>
+          <span class="step-label">Enter Email</span>
+        </div>
+        <div class="step" :class="{ active: currentStep >= 2, completed: currentStep > 2 }">
+          <div class="step-number">2</div>
+          <span class="step-label">Verify Code</span>
+        </div>
+        <div class="step" :class="{ active: currentStep >= 3 }">
+          <div class="step-number">3</div>
+          <span class="step-label">New Password</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Email Input -->
+      <form @submit.prevent="handleSendCode" class="forgot-form" v-if="currentStep === 1">
+        <div class="form-fields">
+          <div class="input-group">
+            <label>Email Address</label>
+            <input
+              v-model="form.email"
+              type="email"
+              required
+              placeholder="Enter your registered email"
+              :disabled="loading"
+              class="form-input"
+            />
+            <i class="fa-solid fa-envelope input-icon"></i>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" :disabled="loading || !form.email" class="submit-btn">
+            <span v-if="loading" class="button-loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Sending Code...
+            </span>
+            <span v-else class="button-text"> Send Reset Code </span>
+          </button>
+        </div>
+
+        <div class="auth-switch">
+          <p>
+            Remember your password?
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
+          </p>
+        </div>
+
+        <div v-if="error" class="error-message">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ error }}
+        </div>
+      </form>
+
+      <!-- Step 2: Verification Code -->
+      <form @submit.prevent="handleVerifyCode" class="forgot-form" v-else-if="currentStep === 2">
+        <div class="verification-info">
+          <i class="fa-solid fa-envelope-circle-check"></i>
+          <p>
+            We sent a 6-digit verification code to <strong>{{ form.email }}</strong>
+          </p>
+        </div>
+
+        <div class="form-fields">
+          <div class="input-group">
+            <label>Verification Code</label>
+            <div class="code-inputs">
+              <input
+                v-for="n in 6"
+                :key="n"
+                :ref="(el) => (codeInputs[n - 1] = el)"
+                v-model="verificationCode[n - 1]"
+                type="text"
+                maxlength="1"
+                @input="handleCodeInput(n - 1, $event)"
+                @keydown="handleCodeKeydown(n - 1, $event)"
+                @paste="handleCodePaste"
+                :disabled="loading"
+                class="code-input"
+              />
+            </div>
+            <i class="fa-solid fa-shield-check input-icon"></i>
+          </div>
+        </div>
+
+        <div class="resend-code">
+          <p>
+            Didn't receive the code?
+            <button
+              type="button"
+              @click="handleResendCode"
+              :disabled="resendCooldown > 0"
+              class="resend-link"
+            >
+              {{ resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code' }}
+            </button>
+          </p>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" :disabled="loading || !isCodeComplete" class="submit-btn">
+            <span v-if="loading" class="button-loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Verifying...
+            </span>
+            <span v-else class="button-text"> Verify Code </span>
+          </button>
+        </div>
+
+        <!-- Back to Login link in Step 2 -->
+        <div class="auth-switch">
+          <p>
+            Remember your password?
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
+          </p>
+        </div>
+
+        <div v-if="error" class="error-message">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ error }}
+        </div>
+      </form>
+
+      <!-- Step 3: New Password -->
+      <form @submit.prevent="handleResetPassword" class="forgot-form" v-else-if="currentStep === 3">
+        <div class="success-info">
+          <i class="fa-solid fa-shield-check"></i>
+          <p>Code verified! Now create your new password</p>
+        </div>
+
+        <div class="form-fields">
+          <div class="input-group">
+            <label>New Password</label>
+            <input
+              v-model="form.newPassword"
+              :type="showNewPassword ? 'text' : 'password'"
+              required
+              placeholder="Enter new password"
+              :disabled="loading"
+              class="form-input"
+              @input="validatePassword"
+            />
+            <i class="fa-solid fa-lock input-icon"></i>
+            <button
+              type="button"
+              @click="showNewPassword = !showNewPassword"
+              class="password-toggle"
+            >
+              <i :class="showNewPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+            </button>
+          </div>
+
+          <div class="input-group">
+            <label>Confirm New Password</label>
+            <input
+              v-model="form.confirmPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              required
+              placeholder="Confirm new password"
+              :disabled="loading"
+              class="form-input"
+              @input="validatePassword"
+            />
+            <i class="fa-solid fa-lock input-icon"></i>
+            <button
+              type="button"
+              @click="showConfirmPassword = !showConfirmPassword"
+              class="password-toggle"
+            >
+              <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Password Strength Indicator -->
+        <div class="password-strength" v-if="form.newPassword">
+          <div class="strength-bar">
+            <div
+              class="strength-fill"
+              :class="passwordStrength.class"
+              :style="{ width: passwordStrength.percentage + '%' }"
+            ></div>
+          </div>
+          <p class="strength-text" :class="passwordStrength.class">
+            {{ passwordStrength.text }}
+          </p>
+        </div>
+
+        <!-- Password Requirements -->
+        <div class="password-requirements">
+          <p class="requirements-title">Password must contain:</p>
+          <ul>
+            <li :class="{ met: hasMinLength }">
+              <i :class="hasMinLength ? 'fa-solid fa-check' : 'fa-solid fa-circle'"></i>
+              At least 8 characters
+            </li>
+            <li :class="{ met: hasUpperCase }">
+              <i :class="hasUpperCase ? 'fa-solid fa-check' : 'fa-solid fa-circle'"></i>
+              One uppercase letter
+            </li>
+            <li :class="{ met: hasLowerCase }">
+              <i :class="hasLowerCase ? 'fa-solid fa-check' : 'fa-solid fa-circle'"></i>
+              One lowercase letter
+            </li>
+            <li :class="{ met: hasNumber }">
+              <i :class="hasNumber ? 'fa-solid fa-check' : 'fa-solid fa-circle'"></i>
+              One number
+            </li>
+            <li :class="{ met: hasSpecialChar }">
+              <i :class="hasSpecialChar ? 'fa-solid fa-check' : 'fa-solid fa-circle'"></i>
+              One special character
+            </li>
+          </ul>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" :disabled="loading || !isPasswordValid" class="submit-btn">
+            <span v-if="loading" class="button-loading">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+              Resetting Password...
+            </span>
+            <span v-else class="button-text"> Reset Password </span>
+          </button>
+        </div>
+
+        <!-- Back to Login link in Step 3 -->
+        <div class="auth-switch">
+          <p>
+            Remember your password?
+            <a href="#" @click.prevent="handleSwitchToLogin" class="switch-link"> Back to Login </a>
+          </p>
+        </div>
+
         <div v-if="error" class="error-message">
           <i class="fa-solid fa-circle-exclamation"></i>
           {{ error }}
@@ -274,8 +580,20 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const emit = defineEmits(['close', 'switch-to-login'])
+const route = useRoute()
+const router = useRouter()
+
+// Determine if this is a modal or full page
+const isModal = computed(() => {
+  // If we're on the /forgot-password route, show as full page
+  // Otherwise, show as modal
+  return route.path !== '/forgot-password'
+})
+
+// Emitted events - added 'go-to-landing'
+const emit = defineEmits(['close', 'switch-to-login', 'go-to-landing'])
 
 // Form data
 const form = ref({
@@ -428,8 +746,35 @@ const handleResendCode = async () => {
   }
 }
 
+// Handle switching to login
+const handleSwitchToLogin = () => {
+  if (isModal.value) {
+    emit('switch-to-login')
+  } else {
+    // If full page, navigate to landing with login modal open
+    router.push('/?showLogin=true')
+  }
+}
+
+// Handle going back to login from success step
 const handleBackToLogin = () => {
-  emit('switch-to-login')
+  handleSwitchToLogin()
+}
+
+// Handle going to landing
+const handleGoToLanding = () => {
+  if (isModal.value) {
+    emit('go-to-landing')
+  } else {
+    router.push('/')
+  }
+}
+
+// Handle closing modal by clicking overlay
+const handleCloseModal = () => {
+  if (isModal.value) {
+    emit('close')
+  }
 }
 
 const handleCodeInput = (index, event) => {
@@ -546,6 +891,44 @@ onMounted(() => {
     radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.05) 0%, transparent 50%), #0f0f23;
   overflow-y: auto;
+}
+
+/* Full page styles */
+.forgot-password-page {
+  min-height: 100vh;
+  background: #050510;
+  padding: 20px;
+}
+
+.page-header {
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: white;
+  padding: 12px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.page-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
 .close-button {
@@ -1291,6 +1674,10 @@ onMounted(() => {
     border-radius: 20px;
   }
 
+  .page-content {
+    padding: 10px 0;
+  }
+
   .code-inputs {
     gap: 6px;
   }
@@ -1313,6 +1700,10 @@ onMounted(() => {
   .modal-content {
     max-width: 480px;
   }
+
+  .page-content {
+    max-width: 480px;
+  }
 }
 
 /* Focus states */
@@ -1323,7 +1714,8 @@ onMounted(() => {
 .switch-link:focus-visible,
 .resend-link:focus-visible,
 .code-input:focus-visible,
-.success-btn:focus-visible {
+.success-btn:focus-visible,
+.back-button:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }

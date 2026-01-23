@@ -103,75 +103,83 @@
 
         <form @submit.prevent="handleRegister" class="register-form">
           <div class="form-fields">
-            <div class="input-group">
+            <div class="input-group name-group">
               <label class="input-label">Full Name</label>
-              <input
-                v-model="form.name"
-                type="text"
-                required
-                class="text-input"
-                placeholder="Enter your full name"
-                :disabled="loading"
-              />
-              <i class="fa-solid fa-user input-icon"></i>
+              <div class="input-wrapper">
+                <input
+                  v-model="form.name"
+                  type="text"
+                  required
+                  class="text-input"
+                  placeholder="Enter your full name"
+                  :disabled="loading"
+                />
+                <i class="fa-solid fa-user input-icon name-icon"></i>
+              </div>
             </div>
 
-            <div class="input-group">
+            <div class="input-group email-group">
               <label class="input-label">Email Address</label>
-              <input
-                v-model="form.email"
-                type="email"
-                required
-                class="text-input"
-                placeholder="Enter your email"
-                :disabled="loading"
-              />
-              <i class="fa-solid fa-envelope input-icon"></i>
+              <div class="input-wrapper">
+                <input
+                  v-model="form.email"
+                  type="email"
+                  required
+                  class="text-input"
+                  placeholder="Enter your email"
+                  :disabled="loading"
+                />
+                <i class="fa-solid fa-envelope input-icon email-icon"></i>
+              </div>
             </div>
 
-            <div class="input-group">
+            <div class="input-group password-group">
               <label class="input-label">Password</label>
-              <input
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                required
-                class="text-input"
-                placeholder="Create a password"
-                minlength="6"
-                :disabled="loading"
-                @input="validatePassword"
-              />
-              <i class="fa-solid fa-lock input-icon"></i>
-              <button
-                type="button"
-                @click="showPassword = !showPassword"
-                class="password-toggle"
-                :disabled="loading"
-              >
-                <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-              </button>
+              <div class="input-wrapper">
+                <input
+                  v-model="form.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  required
+                  class="text-input"
+                  placeholder="Create a password"
+                  minlength="6"
+                  :disabled="loading"
+                  @input="validatePassword"
+                />
+                <i class="fa-solid fa-lock input-icon lock-icon"></i>
+                <button
+                  type="button"
+                  @click="showPassword = !showPassword"
+                  class="password-toggle"
+                  :disabled="loading"
+                >
+                  <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
             </div>
 
-            <div class="input-group">
+            <div class="input-group confirm-password-group">
               <label class="input-label">Confirm Password</label>
-              <input
-                v-model="form.confirmPassword"
-                :type="showConfirmPassword ? 'text' : 'password'"
-                required
-                class="text-input"
-                placeholder="Confirm your password"
-                :disabled="loading"
-                @input="validatePassword"
-              />
-              <i class="fa-solid fa-lock input-icon"></i>
-              <button
-                type="button"
-                @click="showConfirmPassword = !showConfirmPassword"
-                class="password-toggle"
-                :disabled="loading"
-              >
-                <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-              </button>
+              <div class="input-wrapper">
+                <input
+                  v-model="form.confirmPassword"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  required
+                  class="text-input"
+                  placeholder="Confirm your password"
+                  :disabled="loading"
+                  @input="validatePassword"
+                />
+                <i class="fa-solid fa-lock input-icon lock-icon"></i>
+                <button
+                  type="button"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  class="password-toggle"
+                  :disabled="loading"
+                >
+                  <i :class="showConfirmPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1012,6 +1020,10 @@ const closeSuccessModal = () => {
   position: relative;
 }
 
+.input-wrapper {
+  position: relative;
+}
+
 .input-label {
   display: block;
   margin-bottom: clamp(6px, 1.5vw, 8px);
@@ -1024,7 +1036,7 @@ const closeSuccessModal = () => {
 
 .text-input {
   width: 100%;
-  padding: clamp(12px, 3vw, 14px) clamp(40px, 10vw, 48px) clamp(12px, 3vw, 14px)
+  padding: clamp(12px, 3vw, 14px) clamp(44px, 11vw, 52px) clamp(12px, 3vw, 14px)
     clamp(12px, 3vw, 16px);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1056,9 +1068,35 @@ const closeSuccessModal = () => {
   transform: none !important;
 }
 
-.input-icon {
+/* Name field icon - positioned on right */
+.name-group .input-icon {
   position: absolute;
   right: clamp(12px, 3vw, 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: clamp(13px, 3vw, 14px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Email field icon - positioned on right */
+.email-group .input-icon {
+  position: absolute;
+  right: clamp(12px, 3vw, 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: clamp(13px, 3vw, 14px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Password field icons - lock on left, eye on right */
+.password-group .lock-icon,
+.confirm-password-group .lock-icon {
+  position: absolute;
+  left: clamp(12px, 3vw, 16px);
   top: 50%;
   transform: translateY(-50%);
   color: #6b7280;
@@ -1079,11 +1117,17 @@ const closeSuccessModal = () => {
   transition: all 0.3s ease;
   padding: 4px;
   border-radius: 4px;
+  z-index: 2;
+  width: clamp(24px, 6vw, 28px);
+  height: clamp(24px, 6vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .password-toggle:hover:not(:disabled) {
   color: #9ca3af;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .password-toggle:disabled {
@@ -1395,8 +1439,34 @@ const closeSuccessModal = () => {
     border-radius: 20px;
   }
 
+  .text-input {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .password-group .lock-icon,
+  .confirm-password-group .lock-icon {
+    left: 10px;
+  }
+
+  .name-group .input-icon,
+  .email-group .input-icon {
+    right: 10px;
+  }
+
+  .password-toggle {
+    right: 10px;
+  }
+
   .password-requirements ul {
     gap: 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .text-input {
+    padding-left: 48px;
+    padding-right: 48px;
   }
 }
 

@@ -1,5 +1,4 @@
 <template>
-  <!-- Remove teleport, render directly in parent -->
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content" @click.stop>
       <!-- Close Button -->
@@ -27,38 +26,42 @@
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-fields">
-          <div class="input-group">
+          <div class="input-group email-group">
             <label class="input-label">Email Address</label>
-            <input
-              v-model="form.email"
-              type="email"
-              required
-              class="text-input"
-              placeholder="Enter your email"
-              :disabled="loading"
-            />
-            <i class="fa-solid fa-envelope input-icon"></i>
+            <div class="input-wrapper">
+              <input
+                v-model="form.email"
+                type="email"
+                required
+                class="text-input"
+                placeholder="Enter your email"
+                :disabled="loading"
+              />
+              <i class="fa-solid fa-envelope input-icon email-icon"></i>
+            </div>
           </div>
 
-          <div class="input-group">
+          <div class="input-group password-group">
             <label class="input-label">Password</label>
-            <input
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              required
-              class="text-input"
-              placeholder="Enter your password"
-              :disabled="loading"
-            />
-            <i class="fa-solid fa-lock input-icon"></i>
-            <button
-              type="button"
-              @click="showPassword = !showPassword"
-              class="password-toggle"
-              :disabled="loading"
-            >
-              <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-            </button>
+            <div class="input-wrapper">
+              <input
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                class="text-input"
+                placeholder="Enter your password"
+                :disabled="loading"
+              />
+              <i class="fa-solid fa-lock input-icon lock-icon"></i>
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                class="password-toggle"
+                :disabled="loading"
+              >
+                <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+              </button>
+            </div>
           </div>
 
           <!-- Remember Me & Forgot Password -->
@@ -70,7 +73,7 @@
 
             <button
               type="button"
-              @click="$emit('showForgotPassword')"
+              @click="handleForgotPassword"
               class="forgot-password-btn"
               :disabled="loading"
             >
@@ -114,7 +117,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-const emit = defineEmits(['close', 'success', 'switchToRegister', 'showForgotPassword'])
+// Add 'switchToForgotPassword' to emitted events
+const emit = defineEmits(['close', 'success', 'switchToRegister', 'switchToForgotPassword'])
 
 const form = ref({
   email: '',
@@ -206,6 +210,11 @@ const handleLogin = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleForgotPassword = () => {
+  // Emit event to parent to open forgot password modal
+  emit('switchToForgotPassword')
 }
 
 onMounted(() => {
@@ -433,6 +442,10 @@ onMounted(() => {
   position: relative;
 }
 
+.input-wrapper {
+  position: relative;
+}
+
 .input-label {
   display: block;
   margin-bottom: clamp(6px, 1.5vw, 8px);
@@ -445,7 +458,7 @@ onMounted(() => {
 
 .text-input {
   width: 100%;
-  padding: clamp(12px, 3vw, 14px) clamp(40px, 10vw, 48px) clamp(12px, 3vw, 14px)
+  padding: clamp(12px, 3vw, 14px) clamp(44px, 11vw, 52px) clamp(12px, 3vw, 14px)
     clamp(12px, 3vw, 16px);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -477,9 +490,22 @@ onMounted(() => {
   transform: none !important;
 }
 
-.input-icon {
+/* Email field icon - positioned on right */
+.email-group .input-icon {
   position: absolute;
   right: clamp(12px, 3vw, 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: clamp(13px, 3vw, 14px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Password field icons - lock on left, eye on right */
+.password-group .lock-icon {
+  position: absolute;
+  left: clamp(12px, 3vw, 16px);
   top: 50%;
   transform: translateY(-50%);
   color: #6b7280;
@@ -500,11 +526,17 @@ onMounted(() => {
   transition: all 0.3s ease;
   padding: 4px;
   border-radius: 4px;
+  z-index: 2;
+  width: clamp(24px, 6vw, 28px);
+  height: clamp(24px, 6vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .password-toggle:hover:not(:disabled) {
   color: #9ca3af;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .password-toggle:disabled {
@@ -517,7 +549,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .remember-label {
@@ -740,6 +772,30 @@ onMounted(() => {
   .modal-content {
     padding: 20px 16px;
     border-radius: 20px;
+  }
+
+  .text-input {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .password-group .lock-icon {
+    left: 10px;
+  }
+
+  .email-group .input-icon {
+    right: 10px;
+  }
+
+  .password-toggle {
+    right: 10px;
+  }
+}
+
+@media (min-width: 768px) {
+  .text-input {
+    padding-left: 48px;
+    padding-right: 48px;
   }
 }
 
