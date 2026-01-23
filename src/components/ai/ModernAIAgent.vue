@@ -23,13 +23,13 @@
           <div class="flex items-center gap-3">
             <div class="ai-agent-avatar">
               <div class="ai-agent-glow"></div>
-              <i class="fa-solid fa-brain text-white text-xl"></i>
+              <i class="fa-solid fa-crown text-yellow-400 text-xl"></i>
             </div>
             <div>
-              <h3 class="text-white font-bold">Wadajir AI</h3>
+              <h3 class="text-white font-bold">Golden Rise AI</h3>
               <div class="flex items-center gap-2">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span class="text-green-400 text-xs">Online • 2025 AI</span>
+                <span class="text-green-400 text-xs">Online • Mining AI</span>
               </div>
             </div>
           </div>
@@ -46,7 +46,7 @@
             <button @click="clearChat" class="ai-header-btn">
               <i class="fa-solid fa-trash"></i>
             </button>
-            <button @click="isOpen = false" class="ai-header-btn">
+            <button @click="closeChat" class="ai-header-btn close-btn">
               <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
@@ -55,14 +55,14 @@
         <!-- AI Status Bar -->
         <div class="ai-status-bar">
           <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-300">Processing Power:</span>
+            <span class="text-xs text-gray-300">Mining Power:</span>
             <div class="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
               <div
-                class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full"
+                class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full"
                 :style="{ width: processingPower + '%' }"
               ></div>
             </div>
-            <span class="text-xs text-cyan-400">{{ processingPower }}%</span>
+            <span class="text-xs text-yellow-400">{{ processingPower }}%</span>
           </div>
         </div>
 
@@ -71,32 +71,33 @@
           <!-- Welcome Message -->
           <div v-if="showWelcome && chatHistory.length === 0" class="welcome-message">
             <div class="welcome-avatar">
-              <i class="fa-solid fa-sparkles text-purple-400"></i>
+              <i class="fa-solid fa-crown text-yellow-400"></i>
             </div>
             <div class="welcome-content">
               <div class="welcome-text">
-                <h4 class="font-bold text-lg mb-2">Welcome to Wadajir AI</h4>
+                <h4 class="font-bold text-lg mb-2">Welcome to Golden Rise AI</h4>
                 <p class="text-sm text-gray-300 mb-3">
-                  Your intelligent trading companion powered by advanced 2025 AI technology.
+                  Your intelligent mining companion powered by advanced AI technology for maximum
+                  profits.
                 </p>
 
                 <!-- Capabilities Grid -->
                 <div class="capabilities-grid">
                   <div class="capability-item">
-                    <i class="fa-solid fa-brain text-cyan-400"></i>
-                    <span>Predictive Analysis</span>
+                    <i class="fa-solid fa-robot text-yellow-400"></i>
+                    <span>AI Mining Bots</span>
                   </div>
                   <div class="capability-item">
                     <i class="fa-solid fa-bolt text-green-400"></i>
-                    <span>Real-time Insights</span>
+                    <span>Profit Prediction</span>
                   </div>
                   <div class="capability-item">
-                    <i class="fa-solid fa-shield text-purple-400"></i>
-                    <span>Risk Management</span>
-                  </div>
-                  <div class="capability-item">
-                    <i class="fa-solid fa-chart-line text-yellow-400"></i>
+                    <i class="fa-solid fa-coins text-orange-400"></i>
                     <span>Portfolio AI</span>
+                  </div>
+                  <div class="capability-item">
+                    <i class="fa-solid fa-chart-line text-purple-400"></i>
+                    <span>Market Analysis</span>
                   </div>
                 </div>
               </div>
@@ -111,7 +112,7 @@
             :class="message.type"
           >
             <div class="message-avatar">
-              <i v-if="message.type === 'ai'" class="fa-solid fa-robot text-purple-400"></i>
+              <i v-if="message.type === 'ai'" class="fa-solid fa-crown text-yellow-400"></i>
               <i v-else class="fa-solid fa-user text-blue-400"></i>
             </div>
             <div class="message-content">
@@ -131,19 +132,20 @@
                 </button>
               </div>
 
-              <!-- Market Data for Trading Messages -->
-              <div v-if="message.marketData" class="market-data">
-                <div class="market-data-item">
-                  <span class="label">Price:</span>
-                  <span class="value text-green-400">{{ message.marketData.price }}</span>
+              <!-- Mining Data for Messages -->
+              <div v-if="message.miningData" class="mining-data">
+                <div class="mining-data-item">
+                  <span class="label">Daily Profit:</span>
+                  <span class="value text-green-400">{{ message.miningData.profit }}</span>
                 </div>
-                <div class="market-data-item">
-                  <span class="label">Change:</span>
+                <div class="mining-data-item">
+                  <span class="label">Bot Efficiency:</span>
                   <span
                     class="value"
-                    :class="message.marketData.change >= 0 ? 'text-green-400' : 'text-red-400'"
+                    :class="message.miningData.efficiency >= 0 ? 'text-green-400' : 'text-red-400'"
                   >
-                    {{ message.marketData.change >= 0 ? '+' : '' }}{{ message.marketData.change }}%
+                    {{ message.miningData.efficiency >= 0 ? '+' : ''
+                    }}{{ message.miningData.efficiency }}%
                   </span>
                 </div>
               </div>
@@ -153,11 +155,11 @@
           <!-- Typing Indicator -->
           <div v-if="isTyping" class="message ai typing">
             <div class="message-avatar">
-              <i class="fa-solid fa-robot text-purple-400"></i>
+              <i class="fa-solid fa-crown text-yellow-400"></i>
             </div>
             <div class="message-content">
               <div class="typing-indicator">
-                <span>AI is thinking</span>
+                <span>AI is analyzing...</span>
                 <div class="dots">
                   <span></span>
                   <span></span>
@@ -197,14 +199,14 @@
                 type="text"
                 :placeholder="
                   isAuthenticated
-                    ? 'Ask AI about trading strategies, market analysis, or portfolio advice...'
-                    : 'Ask about platform features, security, or how to get started...'
+                    ? 'Ask AI about mining strategies, bot upgrades, or profit analysis...'
+                    : 'Ask about mining features, bot benefits, or how to start mining...'
                 "
                 class="ai-input"
                 :disabled="isTyping"
               />
               <div class="ai-input-hints">
-                <span class="hint-text">Try: "Market analysis" or "Trading tips"</span>
+                <span class="hint-text">Try: "Best mining bot" or "Profit tips"</span>
               </div>
             </div>
             <div class="ai-input-actions">
@@ -304,7 +306,7 @@ const chatHistory = ref<
     text: string
     time: string
     quickActions?: Array<{ text: string; action: string; icon: string }>
-    marketData?: { price: string; change: number }
+    miningData?: { profit: string; efficiency: number }
   }>
 >([])
 
@@ -313,79 +315,79 @@ const quickAccessActions = computed(() => {
   if (!isAuthenticated.value) {
     return [
       {
-        icon: 'fa-solid fa-rocket',
-        text: 'Features',
-        action: 'platform_features',
-        gradient: '#667eea, #764ba2',
+        icon: 'fa-solid fa-robot',
+        text: 'AI Bots',
+        action: 'ai_bots',
+        gradient: '#f59e0b, #d97706',
       },
       {
         icon: 'fa-solid fa-play',
-        text: 'Get Started',
-        action: 'how_to_start',
-        gradient: '#4facfe, #00f2fe',
+        text: 'Start Mining',
+        action: 'start_mining',
+        gradient: '#10b981, #059669',
       },
       {
         icon: 'fa-solid fa-shield',
         text: 'Security',
         action: 'security_info',
-        gradient: '#f093fb, #f5576c',
+        gradient: '#8b5cf6, #7c3aed',
       },
       {
         icon: 'fa-solid fa-gem',
         text: 'Benefits',
-        action: 'platform_benefits',
-        gradient: '#fa709a, #fee140',
+        action: 'mining_benefits',
+        gradient: '#f97316, #ea580c',
       },
       {
         icon: 'fa-solid fa-question',
         text: 'Help',
         action: 'help_guide',
-        gradient: '#30cfd0, #330867',
+        gradient: '#0ea5e9, #0284c7',
       },
       {
         icon: 'fa-solid fa-user-plus',
         text: 'Register',
         action: 'register',
-        gradient: '#a8edea, #fed6e3',
+        gradient: '#ec4899, #db2777',
       },
     ]
   } else {
     return [
       {
         icon: 'fa-solid fa-chart-line',
-        text: 'Market AI',
-        action: 'analyze_market',
-        gradient: '#667eea, #764ba2',
+        text: 'Mining AI',
+        action: 'analyze_mining',
+        gradient: '#f59e0b, #d97706',
       },
       {
         icon: 'fa-solid fa-lightbulb',
-        text: 'AI Tips',
-        action: 'trading_tips',
-        gradient: '#4facfe, #00f2fe',
+        text: 'Profit Tips',
+        action: 'profit_tips',
+        gradient: '#10b981, #059669',
       },
       {
         icon: 'fa-solid fa-shield',
         text: 'Risk AI',
         action: 'security_check',
-        gradient: '#f093fb, #f5576c',
+        gradient: '#8b5cf6, #7c3aed',
       },
       {
         icon: 'fa-solid fa-coins',
         text: 'Portfolio AI',
         action: 'portfolio_advice',
-        gradient: '#fa709a, #fee140',
+        gradient: '#f97316, #ea580c',
       },
       {
         icon: 'fa-solid fa-bolt',
-        text: 'Auto Trade',
-        action: 'quick_trade',
-        gradient: '#30cfd0, #330867',
+        text: 'Auto Mine',
+        action: 'auto_mine',
+        gradient: '#0ea5e9, #0284c7',
       },
       {
-        icon: 'fa-solid fa-robot',
-        text: 'AI Strategy',
-        action: 'ai_strategy',
-        gradient: '#a8edea, #fed6e3',
+        icon: 'fa-solid fa-crown',
+        text: 'VIP AI',
+        action: 'vip_ai',
+        gradient: '#ec4899, #db2777',
       },
     ]
   }
@@ -395,13 +397,13 @@ const quickAccessActions = computed(() => {
 const suggestedPrompts = computed(() => {
   if (!isAuthenticated.value) {
     return [
-      'What makes Wadajir different?',
-      'How secure is the platform?',
-      'How do I start trading?',
-      'What are the trading fees?',
+      'How to start mining?',
+      'What are AI mining bots?',
+      'How much can I earn?',
+      'Is mining profitable?',
     ]
   } else {
-    return ['Analyze BTC market', 'Portfolio optimization', 'Risk assessment', 'Trading signals']
+    return ['Upgrade bots', 'Check profits', 'Portfolio advice', 'Best mining strategy']
   }
 })
 
@@ -424,23 +426,31 @@ const toggleAIAgent = () => {
     // Auto welcome message
     if (chatHistory.value.length === 0) {
       const welcomeMessage = !isAuthenticated.value
-        ? "🚀 **Welcome to Wadajir AI!** I'm your intelligent trading guide. I can help you:<br><br>• Learn about cryptocurrency trading<br>• Understand platform features<br>• Get step-by-step guidance<br>• Explore security measures<br><br>**What would you like to explore today?**"
-        : '🤖 **AI Trading Assistant Online**<br><br>**Real-time Capabilities:**<br>• Market prediction analysis<br>• Portfolio risk assessment<br>• Automated trading signals<br>• Profit optimization strategies<br><br>**How can I enhance your trading today?**'
+        ? "👑 **Welcome to Golden Rise AI!** I'm your intelligent mining assistant. I can help you:<br><br>• Learn about AI mining bots<br>• Understand profit potential<br>• Get step-by-step guidance<br>• Explore mining strategies<br><br>**What would you like to explore today?**"
+        : '🤖 **Golden Rise Mining AI Online**<br><br>**Advanced Capabilities:**<br>• AI mining bot optimization<br>• Profit prediction analysis<br>• Portfolio growth strategies<br>• Risk assessment algorithms<br><br>**How can I maximize your mining profits today?**'
 
       const quickActions = !isAuthenticated.value
         ? [
-            { text: 'Platform Tour', action: 'platform_tour', icon: 'fa-solid fa-compass' },
+            { text: 'Mining Tour', action: 'mining_tour', icon: 'fa-solid fa-compass' },
             { text: 'Start Guide', action: 'start_guide', icon: 'fa-solid fa-play' },
-            { text: 'Security AI', action: 'security_ai', icon: 'fa-solid fa-shield' },
+            { text: 'Profit Calculator', action: 'profit_calc', icon: 'fa-solid fa-calculator' },
           ]
         : [
-            { text: 'Market AI', action: 'market_ai', icon: 'fa-solid fa-chart-line' },
-            { text: 'Portfolio AI', action: 'portfolio_ai', icon: 'fa-solid fa-coins' },
-            { text: 'Trade AI', action: 'trade_ai', icon: 'fa-solid fa-bolt' },
+            { text: 'Bot AI', action: 'bot_ai', icon: 'fa-solid fa-robot' },
+            { text: 'Profit AI', action: 'profit_ai', icon: 'fa-solid fa-coins' },
+            { text: 'Upgrade AI', action: 'upgrade_ai', icon: 'fa-solid fa-crown' },
           ]
 
       addAIMessage(welcomeMessage, quickActions)
     }
+  }
+}
+
+const closeChat = () => {
+  isOpen.value = false
+  // Reset voice if active
+  if (isVoiceActive.value) {
+    stopVoiceRecognition()
   }
 }
 
@@ -472,9 +482,9 @@ const startVoiceRecognition = () => {
   setTimeout(() => {
     if (isRecording.value) {
       if (!isAuthenticated.value) {
-        userInput.value = 'Tell me about Wadajir AI capabilities'
+        userInput.value = 'Tell me about Golden Rise mining'
       } else {
-        userInput.value = 'Generate market analysis report'
+        userInput.value = 'Analyze my mining profits'
       }
       sendMessage()
     }
@@ -542,17 +552,66 @@ const addUserMessage = (text: string) => {
 const addAIMessage = (
   text: string,
   quickActions?: Array<{ text: string; action: string; icon: string }>,
-  marketData?: { price: string; change: number },
+  miningData?: { profit: string; efficiency: number },
 ) => {
   chatHistory.value.push({
     type: 'ai',
     text,
     time: currentTime.value,
     quickActions,
-    marketData,
+    miningData,
   })
   scrollToBottom()
   hasNewMessage.value = true
+}
+
+// Helper functions for random data
+const getRandomBalance = () => {
+  return (Math.random() * 10000 + 1000).toFixed(2)
+}
+
+const getRandomProfit = () => {
+  return (Math.random() * 100 + 50).toFixed(2)
+}
+
+const getRandomBots = () => {
+  return Math.floor(Math.random() * 3 + 1)
+}
+
+const getRandomProjected = () => {
+  return (Math.random() * 3000 + 1000).toFixed(0)
+}
+
+const getRandomEfficiency = () => {
+  return Math.floor(Math.random() * 30 + 70)
+}
+
+const getCurrentBotLevel = () => {
+  const levels = ['Basic', 'Pro', 'Expert', 'VIP']
+  return levels[Math.floor(Math.random() * 2)]
+}
+
+const getTargetBotLevel = () => {
+  const levels = ['Pro', 'Expert', 'VIP']
+  return levels[Math.floor(Math.random() * 2) + 1]
+}
+
+const getUpgradeCost = () => {
+  const costs = [299, 699, 1299, 2999]
+  return costs[Math.floor(Math.random() * 2) + 1]
+}
+
+const getProfitIncrease = () => {
+  return (Math.random() * 50 + 20).toFixed(0)
+}
+
+const getROIPeriod = () => {
+  return Math.floor(Math.random() * 30 + 15)
+}
+
+const getGracePeriod = () => {
+  const periods = [7, 14, 30, 60]
+  return periods[Math.floor(Math.random() * 3) + 1]
 }
 
 const generateEnhancedAIResponse = (userMessage: string) => {
@@ -560,133 +619,150 @@ const generateEnhancedAIResponse = (userMessage: string) => {
 
   if (!isAuthenticated.value) {
     // Landing page enhanced responses
-    if (lowerMessage.includes('ai') || lowerMessage.includes('capabilit')) {
+    if (lowerMessage.includes('mining') || lowerMessage.includes('bot')) {
       addAIMessage(
-        `🤖 **Wadajir AI Capabilities 2025**<br><br>
-        **Advanced AI Features:**<br>
-        🔹 **Predictive Analytics** - 85% accuracy rate<br>
-        🔹 **Real-time Market Scanning** - 50+ exchanges<br>
-        🔹 **Risk Assessment AI** - Automated protection<br>
-        🔹 **Portfolio Optimization** - Smart rebalancing<br>
-        🔹 **Trading Signal Generation** - AI-powered alerts<br>
-        🔹 **Sentiment Analysis** - Social media & news monitoring<br><br>
-        **Why choose Wadajir AI?**<br>
-        • Lower risk with AI insights<br>
-        • Higher profit potential<br>
-        • 24/7 automated monitoring<br>
-        • Personalized strategies<br><br>
-        Ready to experience AI-powered trading?`,
+        `🤖 **Golden Rise AI Mining Bots**<br><br>
+        **Advanced AI Mining Features:**<br>
+        👑 **Scalper Pro** - 5-8% monthly ROI<br>
+        👑 **Swing Master** - 12-18% monthly ROI<br>
+        👑 **Arbitrage Pro** - 20-30% monthly ROI<br>
+        👑 **AI Master** - 35-50% monthly ROI<br><br>
+        **Why choose Golden Rise?**<br>
+        • Guaranteed monthly profits<br>
+        • 24/7 automated mining<br>
+        • AI-powered optimization<br>
+        • VIP support & guidance<br><br>
+        Ready to start AI mining?`,
         [
-          { text: 'AI Demo', action: 'ai_demo', icon: 'fa-solid fa-play' },
+          { text: 'View Bots', action: 'view_bots', icon: 'fa-solid fa-eye' },
           { text: 'Start Free', action: 'start_free', icon: 'fa-solid fa-rocket' },
-          { text: 'Learn More', action: 'learn_more', icon: 'fa-solid fa-graduation-cap' },
+          { text: 'Profit Calc', action: 'profit_calc', icon: 'fa-solid fa-calculator' },
         ],
+        { profit: '$299+ daily', efficiency: 25 },
       )
-    } else if (lowerMessage.includes('feature') || lowerMessage.includes('platform')) {
+    } else if (lowerMessage.includes('profit') || lowerMessage.includes('earn')) {
       addAIMessage(
-        `🌟 **Wadajir Platform Features**<br><br>
-        **Trading Excellence:**<br>
-        • **Multi-Exchange** - Access 100+ markets<br>
-        • **Advanced Charts** - Professional tools<br>
-        • **Mobile App** - Trade anywhere<br><br>
-        **AI Integration:**<br>
-        • **Smart Orders** - AI-optimized execution<br>
-        • **Risk Management** - AI protection<br>
-        • **Portfolio AI** - Automated optimization<br><br>
-        **Security First:**<br>
-        • **Bank-Grade Encryption**<br>
-        • **Cold Storage** - 98% funds offline<br>
-        • **Insurance Coverage**<br><br>
-        **Start your journey today!**`,
+        `💰 **Profit Potential Analysis**<br><br>
+        **AI Mining Profit Calculator:**<br>
+        • **Basic Bot:** $299 → $15-24/day profit<br>
+        • **Pro Bot:** $699 → $35-42/day profit<br>
+        • **Expert Bot:** $1,299 → $85-130/day profit<br>
+        • **VIP Bot:** $2,999 → $350-500/day profit<br><br>
+        **Key Benefits:**<br>
+        • 7-60 day grace periods<br>
+        • Guaranteed ROI rates<br>
+        • Automated mining<br>
+        • Real-time profit tracking<br><br>
+        **Start your mining journey today!**`,
         [
-          { text: 'View Demo', action: 'view_demo', icon: 'fa-solid fa-eye' },
-          { text: 'Compare Plans', action: 'compare_plans', icon: 'fa-solid fa-chart-bar' },
+          { text: 'Calculate', action: 'calculate', icon: 'fa-solid fa-calculator' },
+          { text: 'Compare', action: 'compare', icon: 'fa-solid fa-chart-bar' },
           { text: 'Get Started', action: 'get_started', icon: 'fa-solid fa-play-circle' },
         ],
+        { profit: '$299+ daily', efficiency: 30 },
       )
     } else {
       // Default enhanced response
       addAIMessage(
-        `💡 **AI Insight Detected**<br><br>
+        `💡 **AI Mining Insight Detected**<br><br>
         I've analyzed your query about **"${userMessage}"** and here's what I can provide:<br><br>
         **Immediate Assistance:**<br>
-        • Detailed platform walkthrough<br>
-        • Step-by-step registration guide<br>
-        • Security verification process<br>
-        • Funding methods explained<br><br>
-        **AI-Powered Insights:**<br>
-        • Market entry strategies<br>
-        • Risk assessment for beginners<br>
-        • Portfolio building basics<br><br>
+        • Complete mining setup guide<br>
+        • Bot selection strategy<br>
+        • Profit optimization tips<br>
+        • Risk management plan<br><br>
+        **AI-Powered Analysis:**<br>
+        • Portfolio growth predictions<br>
+        • Bot efficiency optimization<br>
+        • Market timing strategies<br><br>
         **What specific area would you like me to focus on?**`,
         [
           { text: 'Quick Start', action: 'quick_start', icon: 'fa-solid fa-bolt' },
           { text: 'AI Guide', action: 'ai_guide', icon: 'fa-solid fa-robot' },
           { text: 'Live Demo', action: 'live_demo', icon: 'fa-solid fa-video' },
         ],
+        { profit: '$299+ daily', efficiency: 20 },
       )
     }
   } else {
     // Home page enhanced responses
-    if (lowerMessage.includes('market') || lowerMessage.includes('analysis')) {
+    if (lowerMessage.includes('profit') || lowerMessage.includes('earn')) {
+      const randomBalance = getRandomBalance()
+      const randomProfit = getRandomProfit()
+      const randomBots = getRandomBots()
+      const randomProjected = getRandomProjected()
+      const randomEfficiency = getRandomEfficiency()
+
       addAIMessage(
-        `📊 **AI Market Analysis Report**<br><br>
-        **Current Market Status:**<br>
-        • **Overall Trend:** <span class="text-green-400">Bullish 📈</span><br>
-        • **Market Sentiment:** 72/100 (Positive)<br>
-        • **BTC Dominance:** 42.8%<br><br>
-        **AI Predictions:**<br>
-        • **BTC:** Expected movement +3-5% in 24h<br>
-        • **ETH:** Breaking resistance at $3,200<br>
-        • **Top Opportunities:** SOL, AVAX, MATIC<br><br>
-        **Risk Level:** <span class="text-yellow-400">Medium</span><br>
-        **AI Recommendation:** Consider accumulating during dips`,
-        [
-          { text: 'Trade Now', action: 'trade_now', icon: 'fa-solid fa-bolt' },
-          { text: 'Set Alerts', action: 'set_alerts', icon: 'fa-solid fa-bell' },
-          { text: 'Full Report', action: 'full_report', icon: 'fa-solid fa-file-chart-column' },
-        ],
-        { price: '$43,258.90', change: 2.45 },
-      )
-    } else if (lowerMessage.includes('portfolio') || lowerMessage.includes('balance')) {
-      addAIMessage(
-        `💰 **AI Portfolio Analysis**<br><br>
-        **Portfolio Performance:**<br>
-        • **Total Value:** <strong>$18,742.56</strong><br>
-        • **24h Change:** <span class="text-green-400">+3.82%</span><br>
-        • **7d Performance:** +12.45%<br><br>
+        `💰 **AI Profit Analysis Report**<br><br>
+        **Current Mining Status:**<br>
+        • **Total Balance:** <span class="text-green-400">$${randomBalance}</span><br>
+        • **24h Profit:** +$${randomProfit}<br>
+        • **Active Bots:** ${randomBots}<br><br>
         **AI Recommendations:**<br>
-        • Take 25% profit on SOL position<br>
-        • Increase BTC allocation by 15%<br>
-        • Consider adding DOT for diversification<br><br>
-        **Risk Score:** 6.2/10 (Moderate)<br>
-        **Profit Potential:** 18-25% next month`,
+        • Upgrade to Swing Master (+15% profit)<br>
+        • Add Arbitrage Pro bot<br>
+        • Reinvest 50% of profits<br><br>
+        **Projected Monthly Profit:** $${randomProjected}<br>
+        **AI Action:** Optimize mining strategy`,
         [
-          { text: 'Rebalance', action: 'rebalance', icon: 'fa-solid fa-scale-balanced' },
-          { text: 'Optimize', action: 'optimize', icon: 'fa-solid fa-chart-line' },
-          { text: 'Auto Trade', action: 'auto_trade', icon: 'fa-solid fa-robot' },
+          { text: 'Upgrade Now', action: 'upgrade_now', icon: 'fa-solid fa-crown' },
+          { text: 'View Stats', action: 'view_stats', icon: 'fa-solid fa-chart-simple' },
+          { text: 'Auto Mine', action: 'auto_mine', icon: 'fa-solid fa-robot' },
         ],
+        { profit: `+$${randomProfit}`, efficiency: randomEfficiency },
+      )
+    } else if (lowerMessage.includes('upgrade') || lowerMessage.includes('bot')) {
+      const currentBotLevel = getCurrentBotLevel()
+      const targetBotLevel = getTargetBotLevel()
+      const upgradeCost = getUpgradeCost()
+      const profitIncrease = getProfitIncrease()
+      const roiPeriod = getROIPeriod()
+      const gracePeriod = getGracePeriod()
+
+      addAIMessage(
+        `⚡ **AI Bot Upgrade Analysis**<br><br>
+        **Recommended Upgrade Path:**<br>
+        • **Current Level:** ${currentBotLevel}<br>
+        • **Target Level:** ${targetBotLevel}<br>
+        • **Investment:** $${upgradeCost}<br><br>
+        **Expected Benefits:**<br>
+        • Daily profit increase: +$${profitIncrease}<br>
+        • ROI period: ${roiPeriod} days<br>
+        • Grace period: ${gracePeriod} days<br><br>
+        **AI Verification:** Highly Recommended ✅<br>
+        **Profit Probability:** 92%`,
+        [
+          { text: 'Upgrade Bot', action: 'upgrade_bot', icon: 'fa-solid fa-bolt' },
+          { text: 'View Details', action: 'view_details', icon: 'fa-solid fa-eye' },
+          { text: 'AI Strategy', action: 'ai_strategy', icon: 'fa-solid fa-brain' },
+        ],
+        { profit: `+$${profitIncrease}/day`, efficiency: 35 },
       )
     } else {
       // Default enhanced response for authenticated users
+      const randomEfficiency = getRandomEfficiency()
+
       addAIMessage(
-        `🤖 **AI Processing Complete**<br><br>
+        `🤖 **AI Mining Analysis Complete**<br><br>
         **Analysis of:** "${userMessage}"<br><br>
         **AI Insights Generated:**<br>
-        • Market correlation analysis<br>
-        • Risk assessment matrix<br>
-        • Profit probability: 78%<br>
-        • Suggested entry points<br><br>
+        • Mining efficiency: ${randomEfficiency}%<br>
+        • Profit optimization opportunities<br>
+        • Risk assessment: Low-Medium<br>
+        • Suggested bot upgrades<br><br>
         **Recommended Actions:**<br>
-        1. Review detailed technical analysis<br>
-        2. Set automated trading parameters<br>
-        3. Monitor key support/resistance levels<br><br>
+        1. Review mining statistics<br>
+        2. Consider bot upgrades<br>
+        3. Reinvest profits<br>
+        4. Monitor daily earnings<br><br>
         **Would you like me to:**`,
         [
-          { text: 'Execute Trade', action: 'execute_trade', icon: 'fa-solid fa-play' },
+          { text: 'Optimize Now', action: 'optimize_now', icon: 'fa-solid fa-play' },
           { text: 'Deep Analysis', action: 'deep_analysis', icon: 'fa-solid fa-microscope' },
           { text: 'AI Strategy', action: 'ai_strategy', icon: 'fa-solid fa-brain' },
         ],
+        { profit: '+$45-60/day', efficiency: randomEfficiency },
       )
     }
   }
@@ -695,25 +771,25 @@ const generateEnhancedAIResponse = (userMessage: string) => {
 const handleQuickAction = (action: { text: string; action: string; icon: string }) => {
   if (!isAuthenticated.value) {
     switch (action.action) {
-      case 'ai_demo':
+      case 'profit_calc':
         addAIMessage(
-          `🎬 **AI Trading Demo**<br><br>
-          **Live AI Demonstration:**<br>
-          • Real-time market prediction<br>
-          • Portfolio optimization simulation<br>
-          • Risk assessment demo<br>
-          • Automated trading preview<br><br>
-          **Experience features:**<br>
-          1. AI-powered chart analysis<br>
-          2. Smart order execution<br>
-          3. Risk management tools<br>
-          4. Portfolio optimization<br><br>
-          **Ready to start the demo?**`,
+          `🧮 **AI Profit Calculator**<br><br>
+          **Investment:** $1000<br>
+          **Bot:** Swing Master ($699)<br>
+          **Monthly ROI:** 12-18%<br><br>
+          **Projected Earnings:**<br>
+          • Month 1: $120-180 profit<br>
+          • Month 3: $360-540 profit<br>
+          • Month 6: $720-1080 profit<br><br>
+          **ROI Period:** 2-3 months<br>
+          **Grace Period:** 14 days<br><br>
+          **Ready to start mining?**`,
           [
-            { text: 'Start Demo', action: 'start_demo', icon: 'fa-solid fa-play' },
-            { text: 'View Features', action: 'view_features', icon: 'fa-solid fa-list' },
+            { text: 'Start Mining', action: 'start_mining', icon: 'fa-solid fa-play' },
+            { text: 'View Bots', action: 'view_bots', icon: 'fa-solid fa-list' },
             { text: 'Register', action: 'register_now', icon: 'fa-solid fa-user-plus' },
           ],
+          { profit: '$120-180/month', efficiency: 85 },
         )
         break
       default:
@@ -724,24 +800,26 @@ const handleQuickAction = (action: { text: string; action: string; icon: string 
     switch (action.action) {
       case 'ai_strategy':
         addAIMessage(
-          `🧠 **AI Trading Strategy Generated**<br><br>
-          **Strategy:** Momentum Reversal AI<br>
-          **Success Rate:** 82%<br>
-          **Risk Level:** Medium<br><br>
+          `🧠 **AI Mining Strategy Generated**<br><br>
+          **Strategy:** Compound Mining AI<br>
+          **Success Rate:** 88%<br>
+          **Risk Level:** Low<br><br>
           **Execution Plan:**<br>
-          1. Identify oversold conditions<br>
-          2. Enter on RSI < 30 reversal<br>
-          3. Target: 5-8% profit<br>
-          4. Stop-loss: 2% below entry<br><br>
-          **Current Opportunities:**<br>
-          • AVAX showing reversal signals<br>
-          • SOL approaching support<br><br>
+          1. Start with Basic bot<br>
+          2. Reinvest 70% of profits<br>
+          3. Upgrade after 30 days<br>
+          4. Target VIP bot in 90 days<br><br>
+          **Expected Results:**<br>
+          • Month 1: $299-478 profit<br>
+          • Month 3: $2,500-3,500 profit<br>
+          • Month 6: $8,000-12,000 profit<br><br>
           **Activate AI strategy?**`,
           [
             { text: 'Activate AI', action: 'activate_ai', icon: 'fa-solid fa-play' },
             { text: 'Customize', action: 'customize', icon: 'fa-solid fa-sliders' },
             { text: 'Backtest', action: 'backtest', icon: 'fa-solid fa-chart-line' },
           ],
+          { profit: '$299-478/month', efficiency: 88 },
         )
         break
       default:
@@ -766,19 +844,19 @@ const clearChat = () => {
   showWelcome.value = true
 
   const welcomeMessage = !isAuthenticated.value
-    ? "🧹 **Chat Cleared**<br><br>I'm ready to help you discover Wadajir and start your trading journey! What would you like to explore?"
-    : '🧹 **Chat Reset Complete**<br><br>AI Trading Assistant ready for new analysis. What market insights would you like today?'
+    ? "🧹 **Chat Cleared**<br><br>I'm ready to help you discover Golden Rise mining! What would you like to explore?"
+    : '🧹 **Chat Reset Complete**<br><br>AI Mining Assistant ready for new analysis. What mining insights would you like today?'
 
   const quickActions = !isAuthenticated.value
     ? [
-        { text: 'AI Features', action: 'ai_features', icon: 'fa-solid fa-robot' },
+        { text: 'AI Bots', action: 'ai_bots', icon: 'fa-solid fa-robot' },
         { text: 'Quick Start', action: 'quick_start', icon: 'fa-solid fa-bolt' },
         { text: 'Live Demo', action: 'live_demo', icon: 'fa-solid fa-video' },
       ]
     : [
-        { text: 'Market AI', action: 'market_ai', icon: 'fa-solid fa-chart-line' },
+        { text: 'Mining AI', action: 'mining_ai', icon: 'fa-solid fa-chart-line' },
         { text: 'Portfolio AI', action: 'portfolio_ai', icon: 'fa-solid fa-coins' },
-        { text: 'Risk AI', action: 'risk_ai', icon: 'fa-solid fa-shield' },
+        { text: 'Profit AI', action: 'profit_ai', icon: 'fa-solid fa-crown' },
       ]
 
   addAIMessage(welcomeMessage, quickActions)
@@ -798,7 +876,7 @@ const scrollToBottom = () => {
 
 // Lifecycle
 onMounted(() => {
-  // Simulate AI notifications with market insights
+  // Simulate AI notifications with mining insights
   setInterval(() => {
     if (!isOpen.value && Math.random() > 0.6) {
       hasNewMessage.value = true
@@ -819,6 +897,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Golden Rise Theme */
+:root {
+  --golden-primary: #f59e0b;
+  --golden-secondary: #d97706;
+  --golden-accent: #fbbf24;
+  --golden-dark: #1c1c1e;
+  --golden-light: #fef3c7;
+}
+
 /* Responsive Container */
 .ai-agent-container {
   position: fixed;
@@ -827,18 +914,18 @@ onUnmounted(() => {
   z-index: 9999;
 }
 
-/* Responsive Floating Button */
+/* Golden Rise Floating Button */
 .ai-floating-btn {
   position: relative;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--golden-primary) 0%, var(--golden-secondary) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid rgba(255, 255, 255, 0.1);
   z-index: 1000;
@@ -855,18 +942,18 @@ onUnmounted(() => {
 
 .ai-floating-btn:hover {
   transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.4);
 }
 
 .ai-floating-btn.active {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, var(--golden-accent) 0%, #f59e0b 100%);
 }
 
 .ai-floating-btn.pulsing {
   animation: pulse-glow 2s infinite;
 }
 
-/* Enhanced Chat Interface - Responsive */
+/* Golden Rise Chat Interface */
 .ai-chat-interface {
   position: absolute;
   bottom: 80px;
@@ -875,9 +962,9 @@ onUnmounted(() => {
   max-width: 95vw;
   height: 600px;
   max-height: 80vh;
-  background: rgba(17, 17, 31, 0.98);
+  background: rgba(28, 28, 30, 0.98);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -919,6 +1006,71 @@ onUnmounted(() => {
   }
 }
 
+/* Header */
+.ai-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.ai-agent-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--golden-primary) 0%, var(--golden-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-agent-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(245, 158, 11, 0.4) 0%, transparent 70%);
+  animation: glow-pulse 2s infinite;
+}
+
+.ai-header-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ai-header-btn:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--golden-primary);
+  color: var(--golden-accent);
+  transform: translateY(-2px);
+}
+
+.ai-header-btn.active {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: var(--golden-primary);
+  color: var(--golden-accent);
+}
+
+.ai-header-btn.close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
 /* Status Bar */
 .ai-status-bar {
   padding: 8px 20px;
@@ -928,8 +1080,8 @@ onUnmounted(() => {
 
 /* Welcome Message */
 .welcome-message {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
@@ -940,7 +1092,7 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(245, 158, 11, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -965,7 +1117,7 @@ onUnmounted(() => {
   border-radius: 8px;
 }
 
-/* Enhanced Messages */
+/* Messages */
 .ai-chat-messages {
   flex: 1;
   padding: 20px;
@@ -992,9 +1144,34 @@ onUnmounted(() => {
 }
 
 .message.user .message-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--golden-primary) 0%, var(--golden-secondary) 100%);
   border: none;
   align-self: flex-end;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.message-content {
+  max-width: 75%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 12px 16px;
+  position: relative;
+}
+
+.message.ai .message-content {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
 }
 
 @media (max-width: 640px) {
@@ -1007,7 +1184,21 @@ onUnmounted(() => {
   }
 }
 
-.market-data {
+.message-text {
+  color: white;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Mining Data */
+.mining-data {
   display: flex;
   gap: 12px;
   margin-top: 8px;
@@ -1017,17 +1208,43 @@ onUnmounted(() => {
   font-size: 12px;
 }
 
-.market-data-item {
+.mining-data-item {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.market-data-item .label {
+.mining-data-item .label {
   color: #9ca3af;
 }
 
-/* Quick Access Grid - Responsive */
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 10px;
+  padding: 6px 12px;
+  color: var(--golden-accent);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.quick-action-btn:hover {
+  background: rgba(245, 158, 11, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Quick Access Grid */
 .quick-access-grid {
   padding: 0 20px 20px;
 }
@@ -1045,10 +1262,10 @@ onUnmounted(() => {
 .quick-access-btn {
   background: linear-gradient(
     135deg,
-    rgba(var(--gradient-color, 102, 126, 234), 0.1),
-    rgba(var(--gradient-color, 118, 75, 162), 0.1)
+    rgba(var(--gradient-color, 245, 158, 11), 0.1),
+    rgba(var(--gradient-color, 217, 119, 6), 0.1)
   );
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 12px;
   padding: 12px 8px;
   color: white;
@@ -1069,7 +1286,7 @@ onUnmounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
   transition: left 0.5s ease;
 }
 
@@ -1079,14 +1296,14 @@ onUnmounted(() => {
 
 .quick-access-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2);
 }
 
-/* Enhanced Input Area */
+/* Input Area */
 .ai-input-area {
   padding: 20px;
   background: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 @media (max-width: 640px) {
@@ -1109,7 +1326,7 @@ onUnmounted(() => {
 .ai-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 16px;
   padding: 14px 20px 36px;
   color: white;
@@ -1119,8 +1336,8 @@ onUnmounted(() => {
 
 .ai-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  border-color: var(--golden-primary);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 .ai-input-hints {
@@ -1154,7 +1371,7 @@ onUnmounted(() => {
   height: 44px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   color: #9ca3af;
   display: flex;
   align-items: center;
@@ -1171,15 +1388,15 @@ onUnmounted(() => {
 }
 
 .ai-input-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--golden-accent);
   transform: translateY(-2px);
 }
 
 .attach-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
-  color: #3b82f6;
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--golden-primary);
+  color: var(--golden-accent);
 }
 
 .ai-input-btn.recording {
@@ -1190,17 +1407,17 @@ onUnmounted(() => {
 }
 
 .send-btn:not(:disabled) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--golden-primary) 0%, var(--golden-secondary) 100%);
   border: none;
   color: white;
 }
 
 .send-btn:not(:disabled):hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-/* Enhanced Voice Visualizer */
+/* Voice Visualizer */
 .voice-visualizer {
   margin-top: 16px;
   padding: 16px;
@@ -1269,11 +1486,11 @@ onUnmounted(() => {
 }
 
 .prompt-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 12px;
   padding: 10px 12px;
-  color: #9ca3af;
+  color: var(--golden-accent);
   font-size: 12px;
   text-align: left;
   cursor: pointer;
@@ -1284,7 +1501,7 @@ onUnmounted(() => {
 }
 
 .prompt-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(245, 158, 11, 0.2);
   color: white;
   transform: translateY(-2px);
 }
@@ -1294,7 +1511,7 @@ onUnmounted(() => {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: linear-gradient(135deg, #ef4444, #f97316);
+  background: linear-gradient(135deg, var(--golden-primary), #f97316);
   color: white;
   padding: 6px 12px;
   border-radius: 20px;
@@ -1302,10 +1519,30 @@ onUnmounted(() => {
   font-weight: 600;
   white-space: nowrap;
   animation: badge-pulse 2s infinite;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-/* Enhanced Animations */
+/* Animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -1314,6 +1551,17 @@ onUnmounted(() => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes messageSlide {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -1377,32 +1625,144 @@ onUnmounted(() => {
   transform: translateY(10px);
 }
 
-/* Keep all previous animations from the original CSS */
-/* ... existing animations ... */
+/* Typing Indicator */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 13px;
+}
 
-/* Dark/Light Theme Support */
-@media (prefers-color-scheme: light) {
-  .ai-chat-interface {
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
+.dots {
+  display: flex;
+  gap: 3px;
+}
 
-  .ai-input,
-  .ai-input-btn,
-  .quick-access-btn,
-  .prompt-btn {
-    background: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: #333;
-  }
+.dots span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--golden-primary);
+  animation: typing-dot 1.4s infinite;
+}
 
-  .message-text {
-    color: #333;
-  }
+.dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
 
-  .hint-text {
-    color: #666;
+.dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
   }
+  30% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Avatar Glow Effects */
+.ai-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--golden-primary) 0%, var(--golden-secondary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.ai-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(245, 158, 11, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: avatar-glow 2s infinite;
+}
+
+@keyframes avatar-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+.ai-pulse-ring {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-radius: 50%;
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid rgba(28, 28, 30, 0.98);
+  animation: online-pulse 2s infinite;
+}
+
+@keyframes online-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+
+/* Scrollbar Styling */
+.ai-chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: 3px;
+}
+
+.ai-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.5);
 }
 
 /* Accessibility */
@@ -1413,7 +1773,11 @@ onUnmounted(() => {
   .message,
   .typing-indicator span,
   .visualizer-bar,
-  .ai-notification-badge {
+  .ai-notification-badge,
+  .ai-glow,
+  .ai-pulse-ring,
+  .online-indicator,
+  .ai-agent-glow {
     animation: none;
     transition: none;
   }
@@ -1422,13 +1786,36 @@ onUnmounted(() => {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .ai-chat-interface {
-    border: 2px solid #fff;
+    border: 2px solid var(--golden-primary);
   }
 
   .ai-input,
   .ai-input-btn,
   .quick-access-btn {
-    border: 2px solid #fff;
+    border: 2px solid var(--golden-primary);
+  }
+
+  .message-content {
+    border: 2px solid var(--golden-primary);
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .ai-floating-btn {
+    width: 64px;
+    height: 64px;
+  }
+
+  .ai-input-btn,
+  .quick-action-btn,
+  .ai-header-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .ai-input {
+    font-size: 16px; /* Prevent zoom on iOS */
   }
 }
 </style>
